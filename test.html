@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>SPPG Test Koneksi</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .success {
+            background: #c8e6c9;
+        }
+
+        .error {
+            background: #ffcdd2;
+        }
+
+        .info {
+            background: #e3f2fd;
+        }
+
+        pre {
+            background: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+
+        button {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin: 5px 0;
+        }
+
+        h1 {
+            color: #2e7d32;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔧 SPPG Test Koneksi</h1>
+
+    <div class="card info">
+        <strong>Halaman ini untuk test apakah API dan Login bekerja.</strong>
+    </div>
+
+    <div class="card">
+        <h3>1. Test API Connection</h3>
+        <button onclick="testAPI()">🔗 Test API</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="card">
+        <h3>2. Test Login</h3>
+        <input type="tel" id="phone" placeholder="Nomor HP (contoh: 082228077703)">
+        <input type="password" id="pin" placeholder="PIN (contoh: 1234)">
+        <button onclick="testLogin()">🔐 Test Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="card">
+        <h3>3. Clear Cache</h3>
+        <button onclick="clearAllData()">🗑️ Hapus Semua Cache</button>
+        <div id="clear-result"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw64IHTQzSbEMZLUqWk3FIvYaytB004vNHaBFvGGD9NgpaCWmNa5N7NGcS0vwzMYhbEHg/exec';
+
+        function show(id, html, type) {
+            document.getElementById(id).innerHTML = `<div class="card ${type}">${html}</div>`;
+        }
+
+        async function testAPI() {
+            show('api-result', '⏳ Loading...', 'info');
+
+            try {
+                const callbackName = '__testCallback_' + Date.now();
+
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        delete window[callbackName];
+                        reject('Timeout - server tidak merespon');
+                    }, 15000);
+
+                    window[callbackName] = (data) => {
+                        clearTimeout(timeout);
+                        delete window[callbackName];
+
+                        if (data.success && data.data) {
+                            let html = `<strong>✅ API Berhasil!</strong><br>`;
+                            html += `<strong>Jumlah Users: ${data.data.length}</strong><br><br>`;
+                            html += `<pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+
+                            // Simpan ke localStorage
+                            localStorage.setItem('sppg_v2_users', JSON.stringify(data.data));
+                            html += `<br><strong>✅ Data tersimpan ke localStorage!</strong>`;
+
+                            show('api-result', html, 'success');
+                        } else {
+                            show('api-result', `❌ API Error: ${JSON.stringify(data)}`, 'error');
+                        }
+                        resolve();
+                    };
+
+                    const script = document.createElement('script');
+                    script.src = `${API_URL}?action=getAll&sheet=users&callback=${callbackName}`;
+                    script.onerror = () => {
+                        clearTimeout(timeout);
+                        delete window[callbackName];
+                        reject('Script error - gagal load');
+                    };
+                    document.body.appendChild(script);
+                });
+            } catch (e) {
+                show('api-result', `❌ Error: ${e}`, 'error');
+            }
+        }
+
+        function testLogin() {
+            const phone = document.getElementById('phone').value.trim();
+            const pin = document.getElementById('pin').value.trim();
+
+            if (!phone || !pin) {
+                show('login-result', '⚠️ Masukkan phone dan PIN!', 'error');
+                return;
+            }
+
+            const usersData = localStorage.getItem('sppg_v2_users');
+            if (!usersData) {
+                show('login-result', '⚠️ Klik "Test API" dulu untuk ambil data users!', 'error');
+                return;
+            }
+
+            const users = JSON.parse(usersData);
+
+            // Normalize phone - remove leading zeros
+            const normalize = (p) => {
+                if (!p) return '';
+                return p.toString().replace(/^0+/, '').trim();
+            };
+
+            const inputPhoneNorm = normalize(phone);
+
+            let html = `<strong>📱 Input:</strong> ${phone} → normalized: ${inputPhoneNorm}<br><br>`;
+            html += `<strong>📋 Users di database:</strong><br>`;
+
+            users.forEach((u, i) => {
+                const phoneNorm = normalize(u.phone);
+                const match = phoneNorm === inputPhoneNorm ? '✅ MATCH!' : '';
+                html += `• ${u.nama}: ${u.phone} → ${phoneNorm} ${match}<br>`;
+            });
+
+            const user = users.find(u => normalize(u.phone) === inputPhoneNorm);
+
+            if (!user) {
+                html += `<br><strong>❌ User tidak ditemukan!</strong>`;
+                show('login-result', html, 'error');
+                return;
+            }
+
+            html += `<br><strong>✅ User ditemukan: ${user.nama}</strong><br>`;
+
+            // Check PIN
+            const userPin = (user.pin || '1234').toString();
+            if (pin !== userPin) {
+                html += `❌ PIN salah! (PIN di database: ${userPin})`;
+                show('login-result', html, 'error');
+                return;
+            }
+
+            html += `✅ PIN benar!<br>`;
+            html += `<br><strong>🎉 LOGIN BERHASIL!</strong>`;
+            show('login-result', html, 'success');
+        }
+
+        function clearAllData() {
+            // Unregister service workers
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    regs.forEach(reg => reg.unregister());
+                });
+            }
+
+            // Clear caches
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                });
+            }
+
+            // Clear localStorage
+            localStorage.clear();
+
+            show('clear-result', '✅ Semua cache dan data sudah dihapus!<br>Refresh halaman untuk test ulang.', 'success');
+        }
+
+        // Auto-test API on load
+        setTimeout(() => testAPI(), 500);
+    </script>
+</body>
+
+</html>

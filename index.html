@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2e7d32">
+    <meta name="description" content="Aplikasi SPPG MBG Jimbaran 05 - Sistem Pencatatan Makanan Bergizi">
+
+    <!-- FORCE NO CACHE -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <title>SPPG MBG Jimbaran 05</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="assets/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+
+    <!-- Styles with cache buster -->
+    <link rel="stylesheet" href="styles.css?v=3">
+
+    <!-- FORCE CLEAR OLD SERVICE WORKER -->
+    <script>
+        // FORCE UNREGISTER OLD SERVICE WORKERS
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log('🗑️ Unregistered old SW');
+                }
+            });
+            // Clear all caches
+            if ('caches' in window) {
+                caches.keys().then(function (names) {
+                    for (let name of names) {
+                        caches.delete(name);
+                        console.log('🗑️ Deleted cache:', name);
+                    }
+                });
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <!-- =============== SPLASH SCREEN =============== -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-logo">🍱</div>
+        <h1 class="splash-title">SPPG MBG</h1>
+        <p class="splash-subtitle">Jimbaran 05</p>
+    </div>
+
+    <!-- =============== LOGIN SCREEN =============== -->
+    <div id="login-screen" class="login-screen hidden">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>🍱 SPPG MBG</h1>
+                <p>Masuk dengan nomor HP Anda</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="phone-input">📱 Nomor HP</label>
+                    <input type="tel" id="phone-input" placeholder="Contoh: 081234567890" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="pin-input">🔐 PIN (4 digit)</label>
+                    <input type="password" id="pin-input" placeholder="Masukkan PIN" maxlength="6" pattern="[0-9]{4,6}"
+                        required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    🚀 MASUK
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- =============== APP SCREEN =============== -->
+    <div id="app-screen" class="app-screen hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <span class="header-logo">🍱</span>
+                <div class="header-title">
+                    <h1>SPPG MBG</h1>
+                    <p id="current-date">Loading...</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-info-header">
+                    <span id="user-name">User</span>
+                </div>
+                <div class="user-avatar" id="btn-logout" title="Logout">👤</div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content" class="main-content">
+            <!-- Content will be rendered by JavaScript -->
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-section="dashboard">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Beranda</span>
+            </div>
+            <div class="nav-item" data-section="produksi">
+                <span class="nav-icon">👨‍🍳</span>
+                <span class="nav-label">Produksi</span>
+            </div>
+            <div class="nav-item" data-section="distribusi">
+                <span class="nav-icon">🚚</span>
+                <span class="nav-label">Distribusi</span>
+            </div>
+            <div class="nav-item" data-section="logistik">
+                <span class="nav-icon">📦</span>
+                <span class="nav-label">Logistik</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- =============== MODALS =============== -->
+
+    <!-- Modal: Distribusi Form -->
+    <div id="modal-distribusi" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🚚 Input Distribusi</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-distribusi">
+                    <div class="form-group">
+                        <label>Kloter</label>
+                        <select id="distribusi-kloter" required>
+                            <option value="1">Kloter 1 - TK, PAUD, SD 1-2</option>
+                            <option value="2">Kloter 2 - SD 3-6</option>
+                            <option value="3">Kloter 3 - SMP & SMA</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Sekolah</label>
+                        <input type="text" id="distribusi-sekolah" placeholder="Contoh: SDN 1 Jimbaran" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Box</label>
+                        <input type="number" id="distribusi-box" placeholder="50" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Driver</label>
+                        <input type="text" id="distribusi-driver" placeholder="Nama driver">
+                    </div>
+                    <div class="form-group">
+                        <label>📷 Foto Distribusi (Opsional)</label>
+                        <input type="file" id="distribusi-foto" accept="image/*" capture="environment">
+                        <div id="preview-distribusi-foto" class="foto-preview"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">💾 Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Logistik Form -->
+    <div id="modal-logistik" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📦 Input Bahan</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-logistik">
+                    <div class="form-group">
+                        <label>Nama Bahan</label>
+                        <input type="text" id="logistik-nama" placeholder="Contoh: Beras" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Berat (kg)</label>
+                        <input type="number" step="0.1" id="logistik-berat" placeholder="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga (Rp)</label>
+                        <input type="number" id="logistik-harga" placeholder="150000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier</label>
+                        <input type="text" id="logistik-supplier" placeholder="Nama supplier/toko">
+                    </div>
+                    <div class="form-group">
+                        <label>Status QC</label>
+                        <select id="logistik-qc">
+                            <option value="ok">✅ Lolos QC</option>
+                            <option value="review">⚠️ Perlu Review</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>📷 Foto Bahan (Opsional)</label>
+                        <input type="file" id="logistik-foto" accept="image/*" capture="environment">
+                        <div id="preview-logistik-foto" class="foto-preview"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">💾 Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add User -->
+    <div id="modal-add-user" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>👤 Tambah User</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-add-user">
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" id="new-user-nama" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor HP</label>
+                        <input type="tel" id="new-user-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jabatan</label>
+                        <input type="text" id="new-user-jabatan" placeholder="Contoh: Koordinator Distribusi">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="new-user-role">
+                            <option value="koordinator">Koordinator (Bisa Edit)</option>
+                            <option value="staff">Staff (Bisa Edit)</option>
+                            <option value="aslab">Aslab (Bisa Edit)</option>
+                            <option value="relawan">Relawan (View Only)</option>
+                            <option value="admin">Admin (Full Access)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">💾 Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit User -->
+    <div id="modal-edit-user" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Edit User</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-edit-user">
+                    <input type="hidden" id="edit-user-id">
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" id="edit-user-nama" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nomor HP</label>
+                        <input type="tel" id="edit-user-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jabatan</label>
+                        <input type="text" id="edit-user-jabatan" placeholder="Contoh: Koordinator Distribusi">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="edit-user-role">
+                            <option value="koordinator">Koordinator (Bisa Edit)</option>
+                            <option value="staff">Staff (Bisa Edit)</option>
+                            <option value="aslab">Aslab (Bisa Edit)</option>
+                            <option value="relawan">Relawan (View Only)</option>
+                            <option value="admin">Admin (Full Access)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="edit-user-status">
+                            <option value="active">✅ Aktif</option>
+                            <option value="inactive">❌ Nonaktif</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">💾 Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- =============== SCRIPTS =============== -->
+    <script src="modules/database.js"></script>
+    <script src="modules/foto.js"></script>
+    <script src="app.js"></script>
+
+    <!-- Additional Form Handlers -->
+    <script>
+        // Form handlers
+        document.getElementById('form-distribusi')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Process photo if exists
+            let fotoData = null;
+            const fotoInput = document.getElementById('distribusi-foto');
+            if (fotoInput && fotoInput.files[0]) {
+                try {
+                    fotoData = await FotoModule.captureWithWatermark(fotoInput);
+                } catch (err) {
+                    console.log('Foto error:', err);
+                }
+            }
+
+            const data = {
+                kloter: document.getElementById('distribusi-kloter').value,
+                sekolah: document.getElementById('distribusi-sekolah').value,
+                jumlahBox: document.getElementById('distribusi-box').value,
+                driver: document.getElementById('distribusi-driver').value,
+                foto: fotoData,
+                tanggal: App.getTodayDate(),
+                waktu: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                user: App.state.currentUser?.nama,
+                status: 'pending'
+            };
+            Database.add('distribusi', data);
+            document.getElementById('modal-distribusi').classList.add('hidden');
+            e.target.reset();
+            document.getElementById('preview-distribusi-foto').innerHTML = '';
+            App.showToast('success', 'Distribusi berhasil dicatat!');
+            App.renderDistribusi();
+        });
+
+        document.getElementById('form-logistik')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Process photo if exists
+            let fotoData = null;
+            const fotoInput = document.getElementById('logistik-foto');
+            if (fotoInput && fotoInput.files[0]) {
+                try {
+                    fotoData = await FotoModule.captureWithWatermark(fotoInput);
+                } catch (err) {
+                    console.log('Foto error:', err);
+                }
+            }
+
+            const data = {
+                nama: document.getElementById('logistik-nama').value,
+                berat: document.getElementById('logistik-berat').value,
+                harga: document.getElementById('logistik-harga').value,
+                supplier: document.getElementById('logistik-supplier')?.value || '',
+                qcStatus: document.getElementById('logistik-qc').value,
+                foto: fotoData,
+                tanggal: App.getTodayDate(),
+                waktu: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                user: App.state.currentUser?.nama
+            };
+            Database.add('logistik', data);
+            document.getElementById('modal-logistik').classList.add('hidden');
+            e.target.reset();
+            document.getElementById('preview-logistik-foto').innerHTML = '';
+            App.showToast('success', 'Bahan berhasil dicatat!');
+            App.renderLogistik();
+        });
+
+        document.getElementById('form-add-user')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const data = {
+                nama: document.getElementById('new-user-nama').value,
+                phone: document.getElementById('new-user-phone').value,
+                jabatan: document.getElementById('new-user-jabatan').value,
+                role: document.getElementById('new-user-role').value,
+                status: 'active'
+            };
+            Database.add('users', data);
+            document.getElementById('modal-add-user').classList.add('hidden');
+            e.target.reset();
+            App.showToast('success', 'User berhasil ditambahkan!');
+            App.renderUsers();
+        });
+
+        // Show modal functions
+        App.showLogistikForm = () => {
+            document.getElementById('modal-logistik').classList.remove('hidden');
+        };
+
+        App.showAddUserForm = () => {
+            document.getElementById('modal-add-user').classList.remove('hidden');
+        };
+
+        // Edit user form handler
+        document.getElementById('form-edit-user')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userId = document.getElementById('edit-user-id').value;
+            const data = {
+                nama: document.getElementById('edit-user-nama').value,
+                phone: document.getElementById('edit-user-phone').value,
+                jabatan: document.getElementById('edit-user-jabatan').value,
+                role: document.getElementById('edit-user-role').value,
+                status: document.getElementById('edit-user-status').value
+            };
+
+            if (App.updateUser(userId, data)) {
+                document.getElementById('modal-edit-user').classList.add('hidden');
+                e.target.reset();
+                App.renderUsers();
+            }
+        });
+
+        // Update date on header
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('current-date');
+            if (dateEl) {
+                dateEl.textContent = new Date().toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            }
+
+            // Foto preview handlers
+            const setupFotoPreview = (inputId, previewId) => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('change', async (e) => {
+                        const preview = document.getElementById(previewId);
+                        if (preview && e.target.files[0]) {
+                            preview.innerHTML = '<div class="foto-loading">⏳ Memproses...</div>';
+                            try {
+                                const watermarked = await FotoModule.captureWithWatermark(e.target);
+                                preview.innerHTML = `<img src="${watermarked}" class="foto-thumbnail" alt="Preview">`;
+                            } catch (err) {
+                                preview.innerHTML = '<div class="foto-error">❌ Gagal memproses foto</div>';
+                            }
+                        }
+                    });
+                }
+            };
+
+            setupFotoPreview('logistik-foto', 'preview-logistik-foto');
+            setupFotoPreview('distribusi-foto', 'preview-distribusi-foto');
+        });
+    </script>
+</body>
+
+</html>
