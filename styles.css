@@ -1726,3 +1726,97 @@ body {
     font-size: 12px;
     font-weight: 600;
 }
+
+/* ---------- ORNAMENT DECORATIONS ---------- */
+/* Side border style - matching reference design */
+
+.ornament {
+    position: fixed;
+    width: 70px;
+    height: 70px;
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Left side - vertical positioning */
+.ornament-top-left {
+    top: 20%;
+    left: 8px;
+    transform: rotate(0deg);
+}
+
+.ornament-bottom-left {
+    top: 50%;
+    left: 8px;
+    transform: rotate(0deg);
+}
+
+/* Right side - vertical positioning */
+.ornament-top-right {
+    top: 20%;
+    right: 8px;
+    transform: rotate(0deg);
+}
+
+.ornament-bottom-right {
+    top: 50%;
+    right: 8px;
+    transform: rotate(0deg);
+}
+
+/* For main app screen - subtler */
+.app-screen .ornament {
+    opacity: 0.12;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+    .ornament {
+        width: 55px;
+        height: 55px;
+        opacity: 0.15;
+    }
+
+    .ornament-top-left,
+    .ornament-bottom-left {
+        left: 5px;
+    }
+
+    .ornament-top-right,
+    .ornament-bottom-right {
+        right: 5px;
+    }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+    .ornament {
+        width: 40px;
+        height: 40px;
+        opacity: 0.1;
+    }
+}
+
+
+/* Foto count badge */
+.foto-count {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--bgn-navy);
+    background: rgba(124, 185, 232, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+}
+
+/* Button outline style */
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--gray);
+    color: var(--gray);
+}
+
+.btn-outline:hover {
+    background: rgba(108, 117, 125, 0.1);
+}
