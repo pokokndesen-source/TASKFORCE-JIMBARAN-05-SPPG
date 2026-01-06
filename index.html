@@ -79,13 +79,25 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="pin-input">🔐 PIN (4 digit)</label>
+                    <label for="pin-input"><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            </svg></span> PIN (4 digit)</label>
                     <input type="password" id="pin-input" placeholder="Masukkan PIN" maxlength="6" pattern="[0-9]{4,6}"
                         required>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-full">
-                    🚀 MASUK
+                    <span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" width="18" height="18">
+                            <path
+                                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                            <path
+                                d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+                        </svg></span> MASUK
                 </button>
             </form>
         </div>
@@ -106,7 +118,12 @@
             </div>
             <div class="header-right">
                 <span id="user-name">User</span>
-                <div class="user-avatar" id="btn-logout" title="Logout">👤</div>
+                <div class="user-avatar" id="btn-logout" title="Logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </div>
             </div>
         </header>
 
@@ -118,19 +135,44 @@
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <div class="nav-item active" data-section="dashboard">
-                <span class="nav-icon">🏠</span>
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                </span>
                 <span class="nav-label">Beranda</span>
             </div>
             <div class="nav-item" data-section="produksi">
-                <span class="nav-icon">👨‍🍳</span>
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6V13.87Z" />
+                        <line x1="6" y1="17" x2="18" y2="17" />
+                    </svg>
+                </span>
                 <span class="nav-label">Produksi</span>
             </div>
             <div class="nav-item" data-section="distribusi">
-                <span class="nav-icon">🚚</span>
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="3" width="15" height="13" />
+                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                        <circle cx="5.5" cy="18.5" r="2.5" />
+                        <circle cx="18.5" cy="18.5" r="2.5" />
+                    </svg>
+                </span>
                 <span class="nav-label">Distribusi</span>
             </div>
             <div class="nav-item" data-section="logistik">
-                <span class="nav-icon">📦</span>
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                        <line x1="12" y1="22.08" x2="12" y2="12" />
+                    </svg>
+                </span>
                 <span class="nav-label">Logistik</span>
             </div>
         </nav>
@@ -142,7 +184,13 @@
     <div id="modal-distribusi" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🚚 Input Distribusi</h3>
+                <h3><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" width="18" height="18">
+                            <rect x="1" y="3" width="15" height="13" />
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                            <circle cx="5.5" cy="18.5" r="2.5" />
+                            <circle cx="18.5" cy="18.5" r="2.5" />
+                        </svg></span> Input Distribusi</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
@@ -167,22 +215,38 @@
                         <label>Driver</label>
                         <input type="text" id="distribusi-driver" placeholder="Nama driver">
                     </div>
-                    <div class="form-group">
-                        <label>📷 Foto Distribusi (Opsional)</label>
-                        <input type="file" id="distribusi-foto" accept="image/*" capture="environment">
-                        <div id="preview-distribusi-foto" class="foto-preview"></div>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-full">💾 Simpan</button>
-                </form>
+                    <label><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" width="16" height="16">
+                                <path
+                                    d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                <circle cx="12" cy="13" r="4" />
+                            </svg></span> Foto Distribusi (Bisa Pilih Banyak)</label>
+                    <input type="file" id="distribusi-foto" accept="image/*" multiple
+                        onchange="FotoModule.handleMultiCapture(this, 'preview-distribusi-foto')">
+                    <div id="preview-distribusi-foto" class="foto-preview"></div>
             </div>
+            <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                        <polyline points="17 21 17 13 7 13 7 21" />
+                        <polyline points="7 3 7 8 15 8" />
+                    </svg></span> Simpan</button>
+            </form>
         </div>
+    </div>
     </div>
 
     <!-- Modal: Logistik Form -->
     <div id="modal-logistik" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>📦 Input Bahan</h3>
+                <h3><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" width="18" height="18">
+                            <path
+                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                            <line x1="12" y1="22.08" x2="12" y2="12" />
+                        </svg></span> Input Bahan</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
@@ -206,16 +270,28 @@
                     <div class="form-group">
                         <label>Status QC</label>
                         <select id="logistik-qc">
-                            <option value="ok">✅ Lolos QC</option>
-                            <option value="review">⚠️ Perlu Review</option>
+                            <option value="ok">Lolos QC</option>
+                            <option value="review">Perlu Review</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>📷 Foto Bahan (Opsional)</label>
-                        <input type="file" id="logistik-foto" accept="image/*" capture="environment">
+                        <label><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" width="16" height="16">
+                                    <path
+                                        d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                    <circle cx="12" cy="13" r="4" />
+                                </svg></span> Foto Bahan (Bisa Pilih Banyak)</label>
+                        <input type="file" id="logistik-foto" accept="image/*" multiple
+                            onchange="FotoModule.handleMultiCapture(this, 'preview-logistik-foto')">
                         <div id="preview-logistik-foto" class="foto-preview"></div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-full">💾 Simpan</button>
+                    <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg></span> Simpan</button>
                 </form>
             </div>
         </div>
@@ -225,7 +301,11 @@
     <div id="modal-add-user" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>👤 Tambah User</h3>
+                <h3><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" width="18" height="18">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg></span> Tambah User</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
@@ -250,7 +330,13 @@
                             <option value="viewer">View Only</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-full">💾 Simpan</button>
+                    <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg></span> Simpan</button>
                 </form>
             </div>
         </div>
@@ -260,7 +346,11 @@
     <div id="modal-edit-user" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>✏️ Edit User</h3>
+                <h3><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" width="18" height="18">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg></span> Edit User</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
@@ -289,11 +379,17 @@
                     <div class="form-group">
                         <label>Status</label>
                         <select id="edit-user-status">
-                            <option value="active">✅ Aktif</option>
-                            <option value="inactive">❌ Nonaktif</option>
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Nonaktif</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-full">💾 Update</button>
+                    <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg></span> Update</button>
                 </form>
             </div>
         </div>

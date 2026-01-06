@@ -272,7 +272,7 @@ const FotoModule = {
                 <img src="${dataUrl}" alt="${title}">
                 <div class="foto-modal-actions">
                     <button class="btn btn-primary" onclick="FotoModule.saveToPhone('${dataUrl}', '${filename}')">
-                        📥 Simpan ke HP
+                        <span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span> Simpan ke HP
                     </button>
                 </div>
             </div>
@@ -281,8 +281,160 @@ const FotoModule = {
         modal.onclick = (e) => {
             if (e.target === modal) modal.remove();
         };
+    },
+
+    // ============================================
+    // MULTI-PHOTO BATCH PROCESSING
+    // ============================================
+
+    // Process multiple files with watermark
+    captureMultipleWithWatermark: async (inputElement) => {
+        const files = inputElement.files;
+        if (!files || files.length === 0) {
+            throw new Error('Tidak ada file dipilih');
+        }
+
+        const results = [];
+        const total = files.length;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+
+            // Show progress
+            FotoModule.showBatchProgress(i + 1, total, file.name);
+
+            try {
+                // Read file as DataURL
+                const dataUrl = await FotoModule.readFileAsDataUrl(file);
+
+                // Add watermark
+                const watermarked = await FotoModule.addWatermark(dataUrl);
+
+                results.push({
+                    original: file.name,
+                    dataUrl: watermarked,
+                    index: i + 1
+                });
+            } catch (err) {
+                console.error(`Error processing ${file.name}:`, err);
+            }
+        }
+
+        FotoModule.hideBatchProgress();
+        return results;
+    },
+
+    // Read file as data URL (helper)
+    readFileAsDataUrl: (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = () => reject('Gagal membaca file');
+            reader.readAsDataURL(file);
+        });
+    },
+
+    // Process multiple photos, watermark, and AUTO-SAVE to phone
+    processAndSaveMultiple: async (inputElement, context = 'Foto') => {
+        try {
+            const watermarkedPhotos = await FotoModule.captureMultipleWithWatermark(inputElement);
+
+            const savedFiles = [];
+            for (const photo of watermarkedPhotos) {
+                const filename = FotoModule.generateFilename('SPPG_MBG', `${context}_${photo.index}`);
+                FotoModule.saveToPhone(photo.dataUrl, filename);
+                savedFiles.push({
+                    dataUrl: photo.dataUrl,
+                    filename: filename
+                });
+            }
+
+            if (window.App?.showToast) {
+                App.showToast('success', `${savedFiles.length} foto disimpan dengan watermark!`);
+            }
+
+            return savedFiles;
+        } catch (err) {
+            console.error('Batch save error:', err);
+            if (window.App?.showToast) {
+                App.showToast('error', 'Gagal memproses foto: ' + err.message);
+            }
+            return [];
+        }
+    },
+
+    // Show batch processing progress
+    showBatchProgress: (current, total, filename) => {
+        let progress = document.getElementById('foto-batch-progress');
+        if (!progress) {
+            progress = document.createElement('div');
+            progress.id = 'foto-batch-progress';
+            progress.className = 'foto-batch-progress';
+            document.body.appendChild(progress);
+        }
+
+        const percent = Math.round((current / total) * 100);
+        progress.innerHTML = `
+            <div class="batch-progress-content">
+                <div class="batch-progress-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </div>
+                <div class="batch-progress-text">
+                    <strong>Memproses foto ${current}/${total}</strong>
+                    <small>${filename}</small>
+                </div>
+                <div class="batch-progress-bar">
+                    <div class="batch-progress-fill" style="width: ${percent}%"></div>
+                </div>
+            </div>
+        `;
+    },
+
+    // Hide batch progress
+    hideBatchProgress: () => {
+        const progress = document.getElementById('foto-batch-progress');
+        if (progress) {
+            setTimeout(() => progress.remove(), 500);
+        }
+    },
+
+    // Handle multi-photo capture from input with preview
+    handleMultiCapture: async (inputElement, previewContainerId) => {
+        const previewEl = document.getElementById(previewContainerId);
+
+        try {
+            if (previewEl) {
+                previewEl.innerHTML = '<div class="foto-loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Memproses foto...</div>';
+            }
+
+            const watermarkedPhotos = await FotoModule.captureMultipleWithWatermark(inputElement);
+
+            // Show preview grid
+            if (previewEl && watermarkedPhotos.length > 0) {
+                previewEl.innerHTML = `
+                    <div class="foto-grid">
+                        ${watermarkedPhotos.map((p, i) => `
+                            <div class="foto-grid-item">
+                                <img src="${p.dataUrl}" alt="Preview ${i + 1}" onclick="FotoModule.showFoto('${p.dataUrl}', 'Foto ${i + 1}')">
+                                <span class="foto-grid-badge">${i + 1}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <p class="foto-grid-info">${watermarkedPhotos.length} foto siap (tap untuk lihat)</p>
+                `;
+            }
+
+            return watermarkedPhotos;
+        } catch (error) {
+            console.error('Multi capture error:', error);
+            if (previewEl) {
+                previewEl.innerHTML = `<div class="foto-error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ${error}</div>`;
+            }
+            return [];
+        }
     }
 };
 
 // Make available globally
 window.FotoModule = FotoModule;
+

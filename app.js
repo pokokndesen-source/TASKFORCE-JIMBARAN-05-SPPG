@@ -15,22 +15,22 @@ const App = {
 
     // Timeline kerja harian (sesuai mekanisme SPPG)
     TIMELINE: [
-        { jam: '02:00', label: 'Persiapan dimulai', icon: '🌙' },
-        { jam: '03:00', label: 'Tim masuk & masak', icon: '👨‍🍳' },
-        { jam: '04:30', label: 'Kloter 1 selesai', icon: '✅' },
-        { jam: '05:00', label: 'Packing & Test Food', icon: '📦' },
-        { jam: '07:45', label: 'Distribusi Kloter 1', icon: '🚚' },
-        { jam: '09:00', label: 'Distribusi Kloter 2', icon: '🚚' },
-        { jam: '10:00', label: 'Distribusi Kloter 3', icon: '🚚' },
-        { jam: '13:00', label: 'Pengambilan Alat', icon: '📥' },
-        { jam: '15:00', label: 'Closing & QC', icon: '🧹' }
+        { jam: '02:00', label: 'Persiapan dimulai', icon: 'moon' },
+        { jam: '03:00', label: 'Tim masuk & masak', icon: 'chef' },
+        { jam: '04:30', label: 'Kloter 1 selesai', icon: 'check' },
+        { jam: '05:00', label: 'Packing & Test Food', icon: 'box' },
+        { jam: '07:45', label: 'Distribusi Kloter 1', icon: 'truck' },
+        { jam: '09:00', label: 'Distribusi Kloter 2', icon: 'truck' },
+        { jam: '10:00', label: 'Distribusi Kloter 3', icon: 'truck' },
+        { jam: '13:00', label: 'Pengambilan Alat', icon: 'download' },
+        { jam: '15:00', label: 'Closing & QC', icon: 'clipboard' }
     ],
 
     // ==========================================
     // INITIALIZATION
     // ==========================================
     init: () => {
-        console.log('🍽️ SPPG - JIMBARAN 5 Starting...');
+        console.log('✅ SPPG - JIMBARAN 5 Starting...');
 
         // DISABLE SERVICE WORKER FOR NOW (cache causing issues)
         // if ('serviceWorker' in navigator) {
@@ -151,6 +151,40 @@ const App = {
             'relawan': 'View Only'
         };
         return labels[role?.toLowerCase()] || role || 'View Only';
+    },
+
+    // Get SVG icon by name
+    getIconSVG: (name, size = 20) => {
+        const icons = {
+            'moon': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
+            'chef': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6V13.87Z"/><line x1="6" y1="17" x2="18" y2="17"/></svg>`,
+            'check': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><polyline points="20 6 9 17 4 12"/></svg>`,
+            'box': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+            'truck': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+            'download': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+            'clipboard': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>`,
+            'clock': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+            'rocket': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>`,
+            'user': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+            'users': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+            'save': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+            'edit': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+            'trash': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+            'x': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+            'alert': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+            'plus': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+            'camera': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+            'school': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+            'sync': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`,
+            'back': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`,
+            'home': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+            'chart': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+            'settings': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+            'lock': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+            'play': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+            'info': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="${size}" height="${size}"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`
+        };
+        return icons[name] || icons['info'];
     },
 
     // ==========================================
@@ -303,13 +337,13 @@ const App = {
 
         const html = `
             <div class="dashboard-header">
-                <h1>🍽️ SPPG - JIMBARAN 5</h1>
+                <h1>SPPG - JIMBARAN 5</h1>
                 <p>${App.formatDate(today)}</p>
             </div>
 
             <!-- Timeline Progress -->
             <div class="card">
-                <h3>⏰ Timeline Hari Ini</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('clock', 18)}</span> Timeline Hari Ini</h3>
                 <div class="timeline">
                     ${App.renderTimeline()}
                 </div>
@@ -318,22 +352,46 @@ const App = {
             <!-- Quick Stats -->
             <div class="stats-grid">
                 <div class="stat-card" onclick="App.navigateTo('produksi')">
-                    <div class="stat-icon">👨‍🍳</div>
+                    <div class="stat-icon icon-produksi">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6V13.87Z"/>
+                            <line x1="6" y1="17" x2="18" y2="17"/>
+                        </svg>
+                    </div>
                     <div class="stat-value">${produksi.length}</div>
                     <div class="stat-label">Produksi</div>
                 </div>
                 <div class="stat-card" onclick="App.navigateTo('distribusi')">
-                    <div class="stat-icon">🚚</div>
+                    <div class="stat-icon icon-distribusi">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="3" width="15" height="13"/>
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                            <circle cx="5.5" cy="18.5" r="2.5"/>
+                            <circle cx="18.5" cy="18.5" r="2.5"/>
+                        </svg>
+                    </div>
                     <div class="stat-value">${distribusi.length}</div>
                     <div class="stat-label">Distribusi</div>
                 </div>
                 <div class="stat-card" onclick="App.navigateTo('logistik')">
-                    <div class="stat-icon">📦</div>
+                    <div class="stat-icon icon-logistik">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        </svg>
+                    </div>
                     <div class="stat-value">${logistik.length}</div>
                     <div class="stat-label">Logistik</div>
                 </div>
                 <div class="stat-card" onclick="App.navigateTo('laporan')">
-                    <div class="stat-icon">📊</div>
+                    <div class="stat-icon icon-laporan">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                    </div>
                     <div class="stat-value">Rekap</div>
                     <div class="stat-label">Laporan</div>
                 </div>
@@ -341,7 +399,7 @@ const App = {
 
             <!-- Quick Actions -->
             <div class="card">
-                <h3>🚀 Aksi Cepat</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('rocket', 18)}</span> Aksi Cepat</h3>
                 ${App.canEdit() ? `
                 <div class="quick-actions">
                     <button class="btn btn-primary" onclick="App.navigateTo('produksi')">
@@ -353,7 +411,7 @@ const App = {
                 </div>
                 ` : `
                 <div class="view-only-notice">
-                    <p>👁️ Mode View Only</p>
+                    <p><span class="icon-inline">${App.getIconSVG('info', 16)}</span> Mode View Only</p>
                     <small>Anda login sebagai ${user?.role || 'Relawan'}. Hanya bisa melihat data.</small>
                 </div>
                 `}
@@ -362,13 +420,13 @@ const App = {
             ${App.isAdmin() ? `
             <!-- Admin Section -->
             <div class="card admin-section">
-                <h3>👑 Menu Admin</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('settings', 18)}</span> Menu Admin</h3>
                 <div class="admin-buttons">
                     <button class="btn btn-secondary" onclick="App.navigateTo('users')">
-                        👥 Kelola User
+                        <span class="icon-inline">${App.getIconSVG('users', 16)}</span> Kelola User
                     </button>
                     <button class="btn btn-secondary" onclick="App.navigateTo('settings')">
-                        ⚙️ Pengaturan
+                        <span class="icon-inline">${App.getIconSVG('settings', 16)}</span> Pengaturan
                     </button>
                 </div>
             </div>
@@ -401,7 +459,7 @@ const App = {
 
             return `
                 <div class="timeline-item ${status}">
-                    <span class="timeline-icon">${item.icon}</span>
+                    <span class="timeline-icon">${App.getIconSVG(item.icon, 22)}</span>
                     <span class="timeline-time">${item.jam}</span>
                     <span class="timeline-label">${item.label}</span>
                 </div>
@@ -418,17 +476,17 @@ const App = {
 
         const html = `
             <div class="section-header">
-                <h2>👨‍🍳 Produksi</h2>
-                ${App.canEdit() ? '<button class="btn btn-primary" onclick="App.showProduksiForm()">+ Tambah</button>' : '<span class="view-badge">👁️ View Only</span>'}
+                <h2><span class="icon-inline">${App.getIconSVG('chef', 20)}</span> Produksi</h2>
+                ${App.canEdit() ? `<button class="btn btn-primary" onclick="App.showProduksiForm()"><span class="icon-inline">${App.getIconSVG('plus', 16)}</span> Tambah</button>` : `<span class="view-badge"><span class="icon-inline">${App.getIconSVG('info', 14)}</span> View Only</span>`}
             </div>
 
             <div class="checklist-card">
-                <h3>📋 Checklist Produksi Hari Ini</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('clipboard', 18)}</span> Checklist Produksi Hari Ini</h3>
                 ${App.renderProduksiChecklist(records)}
             </div>
 
             <div class="records-list">
-                <h3>📝 Catatan Produksi</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('edit', 18)}</span> Catatan Produksi</h3>
                 ${records.length > 0 ? records.map(r => `
                     <div class="record-item">
                         <div class="record-title">${r.step || 'Catatan'}</div>
@@ -569,8 +627,8 @@ const App = {
 
         const html = `
             <div class="section-header">
-                <h2>🚚 Distribusi</h2>
-                ${App.canEdit() ? '<button class="btn btn-primary" onclick="App.showDistribusiForm()">+ Tambah</button>' : '<span class="view-badge">👁️ View Only</span>'}
+                <h2><span class="icon-inline">${App.getIconSVG('truck', 20)}</span> Distribusi</h2>
+                ${App.canEdit() ? `<button class="btn btn-primary" onclick="App.showDistribusiForm()"><span class="icon-inline">${App.getIconSVG('plus', 16)}</span> Tambah</button>` : `<span class="view-badge"><span class="icon-inline">${App.getIconSVG('info', 14)}</span> View Only</span>`}
             </div>
 
             <!-- Kloter Summary -->
@@ -580,7 +638,7 @@ const App = {
 
             <!-- Today's Records -->
             <div class="records-list">
-                <h3>📝 Catatan Distribusi</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('edit', 18)}</span> Catatan Distribusi</h3>
                 ${records.length > 0 ? records.map(r => `
                     <div class="record-item">
                         <div class="record-title">${r.sekolah || 'Sekolah'}</div>
@@ -752,8 +810,8 @@ const App = {
 
         const html = `
             <div class="section-header">
-                <h2>📦 Logistik & QC Bahan</h2>
-                ${App.canEdit() ? '<button class="btn btn-primary" onclick="App.showLogistikForm()">+ Input Bahan</button>' : '<span class="view-badge">👁️ View Only</span>'}
+                <h2><span class="icon-inline">${App.getIconSVG('box', 20)}</span> Logistik & QC Bahan</h2>
+                ${App.canEdit() ? `<button class="btn btn-primary" onclick="App.showLogistikForm()"><span class="icon-inline">${App.getIconSVG('plus', 16)}</span> Input Bahan</button>` : `<span class="view-badge"><span class="icon-inline">${App.getIconSVG('info', 14)}</span> View Only</span>`}
             </div>
 
             <!-- Summary Card -->
@@ -780,7 +838,7 @@ const App = {
 
             <!-- Materials List -->
             <div class="records-list">
-                <h3>📋 Daftar Bahan Hari Ini</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('clipboard', 18)}</span> Daftar Bahan Hari Ini</h3>
                 ${records.length > 0 ? records.map(r => `
                     <div class="logistik-item qc-${r.qcStatus || 'ok'}">
                         <div class="logistik-header">
@@ -835,15 +893,15 @@ const App = {
             </div>
 
             <div class="card">
-                <h3>📅 Rekap Hari Ini (${App.formatDate(today)})</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('clock', 18)}</span> Rekap Hari Ini (${App.formatDate(today)})</h3>
                 ${App.generateDailyReport(today)}
             </div>
 
             <div class="card">
-                <h3>💾 Backup & Restore</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('save', 18)}</span> Backup & Restore</h3>
                 <div class="backup-actions">
                     <button class="btn btn-secondary" onclick="Database.downloadBackup()">
-                        📥 Download Backup
+                        <span class="icon-inline">${App.getIconSVG('download', 16)}</span> Download Backup
                     </button>
                     <label class="btn btn-secondary">
                         📤 Import Backup
@@ -906,14 +964,14 @@ const App = {
 
         const html = `
             <div class="section-header">
-                <h2>👥 Kelola User</h2>
-                <button class="btn btn-primary" onclick="App.showAddUserForm()">+ Tambah User</button>
+                <h2><span class="icon-inline">${App.getIconSVG('users', 20)}</span> Kelola User</h2>
+                <button class="btn btn-primary" onclick="App.showAddUserForm()"><span class="icon-inline">${App.getIconSVG('plus', 16)}</span> Tambah User</button>
             </div>
 
             <div class="users-list">
                 ${users.map(u => `
                     <div class="user-item ${u.id?.toString() === currentUserId ? 'current' : ''}">
-                        <div class="user-avatar">👤</div>
+                        <div class="user-avatar">${App.getIconSVG('user', 24)}</div>
                         <div class="user-info">
                             <div class="user-name">${u.nama}</div>
                             <div class="user-meta">${u.jabatan || '-'} • ${u.phone}</div>
@@ -922,11 +980,11 @@ const App = {
                         <div class="user-status ${u.status}">${u.status}</div>
                         <div class="user-actions">
                             <button class="btn-edit" onclick="App.showEditUserForm('${u.id}')" title="Edit user">
-                                ✏️
+                                ${App.getIconSVG('edit', 16)}
                             </button>
                             ${u.id?.toString() !== currentUserId ? `
                                 <button class="btn-delete" onclick="App.deleteUser('${u.id}')" title="Hapus user">
-                                    🗑️
+                                    ${App.getIconSVG('trash', 16)}
                                 </button>
                             ` : ''}
                         </div>
@@ -1123,19 +1181,19 @@ const App = {
     renderSettings: () => {
         const html = `
             <div class="section-header">
-                <h2>⚙️ Pengaturan</h2>
+                <h2><span class="icon-inline">${App.getIconSVG('settings', 20)}</span> Pengaturan</h2>
             </div>
 
             <!-- CLOUD SYNC -->
             <div class="card">
-                <h3>☁️ Sinkronisasi Cloud (Google Sheets)</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('sync', 18)}</span> Sinkronisasi Cloud (Google Sheets)</h3>
                 <p>Sinkronkan data antara device ini dengan Google Sheets:</p>
                 <div class="sync-actions">
                     <button class="btn btn-primary" onclick="App.pushAllToCloud()">
-                        ⬆️ Push ke Cloud
+                        <span class="icon-inline">${App.getIconSVG('sync', 16)}</span> Push ke Cloud
                     </button>
                     <button class="btn btn-success" onclick="App.pullFromCloud()">
-                        ⬇️ Pull dari Cloud
+                        <span class="icon-inline">${App.getIconSVG('download', 16)}</span> Pull dari Cloud
                     </button>
                 </div>
                 <p class="sync-status" id="sync-status"></p>
@@ -1149,16 +1207,16 @@ const App = {
                         📥 Download Backup
                     </button>
                     <label class="btn btn-secondary">
-                        📤 Import Backup
+                        <span class="icon-inline">${App.getIconSVG('download', 16)}</span> Import Backup
                         <input type="file" accept=".json" onchange="App.handleImportBackup(event)" hidden>
                     </label>
                 </div>
             </div>
 
             <div class="card danger">
-                <h3>⚠️ Zona Bahaya</h3>
+                <h3><span class="icon-inline">${App.getIconSVG('alert', 18)}</span> Zona Bahaya</h3>
                 <button class="btn btn-danger" onclick="Database.resetAll()">
-                    🗑️ Reset Semua Data
+                    <span class="icon-inline">${App.getIconSVG('trash', 16)}</span> Reset Semua Data
                 </button>
             </div>
         `;
@@ -1235,7 +1293,7 @@ const App = {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.innerHTML = `
-            <span class="toast-icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+            <span class="toast-icon">${App.getIconSVG(type === 'success' ? 'check' : type === 'error' ? 'x' : 'info', 18)}</span>
             <span class="toast-message">${message}</span>
         `;
         document.body.appendChild(toast);

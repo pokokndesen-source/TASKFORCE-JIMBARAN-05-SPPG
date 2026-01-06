@@ -553,10 +553,7 @@ body {
     gap: 10px;
 }
 
-.dashboard-header h1::before {
-    content: '🍽️';
-    font-size: 28px;
-}
+/* Dashboard header - no emoji icon, clean text only */
 
 .dashboard-header p {
     color: var(--gray);
@@ -650,10 +647,49 @@ body {
 }
 
 .stat-icon {
-    font-size: 36px;
-    margin-bottom: 8px;
-    display: block;
-    animation: bounce 2s infinite;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--bgn-blue-light) 0%, var(--bgn-sky) 100%);
+    box-shadow: 0 4px 12px rgba(27, 54, 93, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+    transition: var(--transition-normal);
+}
+
+.stat-icon svg {
+    width: 26px;
+    height: 26px;
+    stroke-width: 2;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(27, 54, 93, 0.3);
+}
+
+/* Color-coded icons */
+.icon-produksi {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    color: #2e7d32;
+}
+
+.icon-distribusi {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1565c0;
+}
+
+.icon-logistik {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    color: #f57c00;
+}
+
+.icon-laporan {
+    background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+    color: #7b1fa2;
 }
 
 .stat-value {
@@ -701,7 +737,6 @@ body {
 }
 
 .timeline-icon {
-    font-size: 22px;
     width: 40px;
     height: 40px;
     display: flex;
@@ -710,6 +745,36 @@ body {
     background: var(--white);
     border-radius: 50%;
     box-shadow: var(--shadow-sm);
+    color: var(--bgn-navy);
+}
+
+.timeline-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.timeline-item.active .timeline-icon {
+    background: linear-gradient(135deg, var(--bgn-gold) 0%, var(--bgn-gold-light) 100%);
+    color: var(--bgn-navy-dark);
+    box-shadow: 0 4px 12px rgba(201, 169, 98, 0.4);
+}
+
+.timeline-item.done .timeline-icon {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: var(--success);
+}
+
+/* Icon inline helper - for icons in text/headers */
+.icon-inline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.icon-inline svg {
+    vertical-align: middle;
 }
 
 .timeline-time {
@@ -1102,22 +1167,39 @@ body {
 }
 
 .nav-icon {
-    font-size: 24px;
-    margin-bottom: 2px;
+    width: 24px;
+    height: 24px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: var(--transition-fast);
+    color: var(--bgn-navy);
 }
 
-.nav-item:not(.active):hover .nav-icon {
-    transform: scale(1.2);
+.nav-icon svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
 }
 
 .nav-item.active .nav-icon {
-    animation: bounce 0.5s ease;
+    color: var(--white);
+}
+
+.nav-item:not(.active):hover .nav-icon {
+    transform: scale(1.15);
+    color: var(--bgn-blue);
 }
 
 .nav-label {
     font-size: 11px;
     font-weight: 600;
+    color: var(--bgn-navy);
+}
+
+.nav-item.active .nav-label {
+    color: var(--white);
 }
 
 /* ---------- TOAST ---------- */
@@ -1429,4 +1511,135 @@ body {
     bottom: -20px;
     left: -20px;
     transform: rotate(-45deg);
+}
+
+/* ---------- BATCH PROGRESS OVERLAY ---------- */
+.foto-batch-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(27, 54, 93, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+}
+
+.batch-progress-content {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 30px 40px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    min-width: 280px;
+}
+
+.batch-progress-icon {
+    color: var(--bgn-blue);
+    margin-bottom: 16px;
+    animation: pulse 1s infinite;
+}
+
+.batch-progress-icon svg {
+    width: 48px;
+    height: 48px;
+}
+
+.batch-progress-text {
+    margin-bottom: 16px;
+}
+
+.batch-progress-text strong {
+    display: block;
+    color: var(--bgn-navy);
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.batch-progress-text small {
+    color: var(--gray);
+    font-size: 12px;
+}
+
+.batch-progress-bar {
+    height: 8px;
+    background: var(--bgn-sky);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.batch-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--bgn-blue), var(--bgn-gold));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* ---------- FOTO GRID PREVIEW ---------- */
+.foto-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.foto-grid-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.foto-grid-item:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-md);
+}
+
+.foto-grid-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.foto-grid-badge {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    background: var(--bgn-navy);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.foto-grid-info {
+    font-size: 12px;
+    color: var(--gray);
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Spinner animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
 }
