@@ -1,5 +1,5 @@
 // ============================================
-// SPPG MBG JIMBARAN 05 - V2 MAIN APP
+// SPPG - JIMBARAN 5 - V2 MAIN APP
 // ============================================
 // Versi 2.0 - Simplified & Timeline-Based
 // ============================================
@@ -30,7 +30,7 @@ const App = {
     // INITIALIZATION
     // ==========================================
     init: () => {
-        console.log('🍱 SPPG MBG V2 Starting...');
+        console.log('🍽️ SPPG - JIMBARAN 5 Starting...');
 
         // DISABLE SERVICE WORKER FOR NOW (cache causing issues)
         // if ('serviceWorker' in navigator) {
@@ -303,7 +303,7 @@ const App = {
 
         const html = `
             <div class="dashboard-header">
-                <h1>🍱 SPPG MBG</h1>
+                <h1>🍽️ SPPG - JIMBARAN 5</h1>
                 <p>${App.formatDate(today)}</p>
             </div>
 

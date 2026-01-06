@@ -1,16 +1,16 @@
 // ============================================
-// SPPG MBG - FOTO MODULE
+// SPPG - JIMBARAN 5 - FOTO MODULE
 // ============================================
 // 
 // Fitur:
 // - Capture foto dari kamera
-// - Auto watermark: SPPG MBG, tanggal, jam, user
+// - Auto watermark: SPPG - JIMBARAN 5, tanggal, jam, user
 // - Compress untuk upload
 //
 // ============================================
 
 const FotoModule = {
-    SPPG_NAME: 'SPPG MBG Jimbaran 05',
+    SPPG_NAME: 'SPPG - JIMBARAN 5',
 
     // Capture foto dan tambah watermark
     captureWithWatermark: async (inputElement) => {
