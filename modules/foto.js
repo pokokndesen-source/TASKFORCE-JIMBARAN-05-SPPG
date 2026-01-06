@@ -4,13 +4,36 @@
 // 
 // Fitur:
 // - Capture foto dari kamera
-// - Auto watermark: SPPG - JIMBARAN 5, tanggal, jam, user
+// - Auto watermark dengan logo BGN
+// - Multi-photo support
 // - Compress untuk upload
 //
 // ============================================
 
 const FotoModule = {
     SPPG_NAME: 'SPPG - JIMBARAN 5',
+
+    // Preloaded logo - will be loaded on page init
+    logoImage: null,
+    logoLoaded: false,
+
+    // Initialize logo preload
+    initLogo: () => {
+        if (!FotoModule.logoImage) {
+            FotoModule.logoImage = new Image();
+            FotoModule.logoImage.crossOrigin = 'anonymous';
+            FotoModule.logoImage.onload = () => {
+                FotoModule.logoLoaded = true;
+                console.log('BGN Logo loaded successfully');
+            };
+            FotoModule.logoImage.onerror = () => {
+                console.log('Failed to load BGN logo');
+                FotoModule.logoLoaded = false;
+            };
+            // Try multiple paths
+            FotoModule.logoImage.src = 'assets/bgn-logo.png';
+        }
+    },
 
     // Capture foto dan tambah watermark
     captureWithWatermark: async (inputElement) => {
@@ -96,7 +119,7 @@ const FotoModule = {
 
                 // Build lines
                 const allLines = [
-                    { text: `🏛️ ${FotoModule.SPPG_NAME}`, color: '#FFD700', bold: true },
+                    { text: FotoModule.SPPG_NAME, color: '#FFD700', bold: true },
                     { text: `📍 ${FotoModule.SPPG_ADDRESS}`, color: '#FFFFFF' },
                     { text: `📅 ${tanggal}`, color: '#FFFFFF' },
                     { text: `⏰ ${jam}`, color: '#87CEEB' },
@@ -107,19 +130,22 @@ const FotoModule = {
                 }
 
                 // Calculate sizes
-                const fontSize = Math.max(14, Math.min(canvas.width * 0.02, 20));
-                const lineHeight = fontSize * 1.6;
-                const padding = 15;
-                const totalHeight = allLines.length * lineHeight + padding;
+                const fontSize = Math.max(13, Math.min(canvas.width * 0.018, 18));
+                const lineHeight = fontSize * 1.5;
+                const logoSize = Math.min(canvas.width * 0.06, 50);  // Logo size
+                const padding = 12;
+
+                // Total height = logo row + text lines
+                const totalHeight = logoSize + allLines.length * lineHeight + padding * 2;
 
                 // Position: bottom-right corner with margin
-                const margin = 20;
-                const startX = canvas.width * 0.52;  // Start at 52% from left
+                const margin = 15;
+                const startX = canvas.width * 0.55;  // Start at 55% from left
                 const startY = canvas.height - totalHeight - margin;
 
                 // Draw text with outline helper
                 const drawText = (text, x, y, color, isBold) => {
-                    ctx.font = isBold ? `bold ${fontSize * 1.1}px Arial` : `bold ${fontSize}px Arial`;
+                    ctx.font = isBold ? `bold ${fontSize * 1.15}px Arial` : `bold ${fontSize}px Arial`;
                     ctx.textAlign = 'left';
                     // Black outline
                     ctx.strokeStyle = '#000000';
@@ -131,12 +157,39 @@ const FotoModule = {
                     ctx.fillText(text, x, y);
                 };
 
-                // Draw all lines
-                let y = startY + fontSize;
-                allLines.forEach(line => {
-                    drawText(line.text, startX, y, line.color, line.bold);
+                // Draw logo if loaded
+                const logoX = startX;
+                const logoY = startY;
+
+                if (FotoModule.logoLoaded && FotoModule.logoImage) {
+                    // Draw white circle background for logo
+                    ctx.beginPath();
+                    ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2 + 3, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                    ctx.fill();
+                    ctx.strokeStyle = '#C9A962';  // Gold border
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    // Draw logo
+                    try {
+                        ctx.drawImage(FotoModule.logoImage, logoX, logoY, logoSize, logoSize);
+                    } catch (e) {
+                        console.log('Logo draw error:', e);
+                    }
+                }
+
+                // Draw title next to logo
+                const titleX = FotoModule.logoLoaded ? logoX + logoSize + 10 : startX;
+                const titleY = logoY + logoSize / 2 + fontSize / 3;
+                drawText(allLines[0].text, titleX, titleY, allLines[0].color, true);
+
+                // Draw remaining lines below logo
+                let y = startY + logoSize + lineHeight;
+                for (let i = 1; i < allLines.length; i++) {
+                    drawText(allLines[i].text, startX, y, allLines[i].color, false);
                     y += lineHeight;
-                });
+                }
 
                 // Output
                 resolve(canvas.toDataURL('image/jpeg', 0.82));
@@ -562,4 +615,5 @@ const FotoModule = {
 // Make available globally
 window.FotoModule = FotoModule;
 
-
+// Initialize logo preload on page load
+FotoModule.initLogo();

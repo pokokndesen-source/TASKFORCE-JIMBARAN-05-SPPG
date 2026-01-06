@@ -531,17 +531,19 @@ const App = {
                         ${isDone && record ? `
                             <div class="step-time">✅ Selesai ${record.waktu || ''} oleh ${record.user || ''}</div>
                             ${record.foto ? `<img src="${record.foto}" class="foto-thumbnail" onclick="FotoModule.showFoto('${record.foto}', '${step.label}')" alt="Foto ${step.label}">` : ''}
+                            ${record.fotoCount > 1 ? `<span class="foto-count">+${record.fotoCount - 1} foto lainnya</span>` : ''}
                         ` : ''}
                         ${!isDone && canEdit ? `
                             <div class="step-actions" style="margin-top:10px">
                                 ${step.needPhoto ? `
-                                    <div class="foto-capture">
+                                    <div class="produksi-foto-area" id="produksi-foto-${step.id}">
                                         <label class="btn btn-secondary btn-sm">
-                                            📷 Foto & Selesai
-                                            <input type="file" accept="image/*" multiple 
-                                                onchange="App.completeProduksiWithPhoto('${step.id}', '${step.label}', this)" hidden>
+                                            📷 Ambil Foto
+                                            <input type="file" accept="image/*" capture="environment"
+                                                onchange="App.addProduksiPhoto('${step.id}', '${step.label}', this)" hidden>
                                         </label>
                                     </div>
+                                    <div id="produksi-preview-${step.id}" class="foto-preview"></div>
                                 ` : `
                                     <button class="btn btn-success btn-sm" onclick="App.toggleProduksiStep('${step.id}', '${step.label}')">
                                         ✓ Selesai
@@ -555,17 +557,27 @@ const App = {
         }).join('');
     },
 
-    // Complete produksi step with photo
-    completeProduksiWithPhoto: async (stepId, stepLabel, inputElement) => {
+    // ============================================
+    // PRODUKSI MULTI-PHOTO SYSTEM
+    // ============================================
+
+    // Temporary storage for produksi photos per step
+    produksiFotos: {},
+
+    // Add photo to produksi step (supports multiple photos)
+    addProduksiPhoto: async (stepId, stepLabel, inputElement) => {
         if (!App.canEdit()) {
             App.showToast('error', 'Anda tidak punya akses!');
             return;
         }
 
+        const previewId = `produksi-preview-${stepId}`;
+        const previewEl = document.getElementById(previewId);
+
         App.showToast('info', '⏳ Memproses foto...');
 
         try {
-            // Use captureAndSave to add watermark AND save to phone
+            // Use captureAndSave to watermark + save to phone
             const result = await FotoModule.captureAndSave(inputElement, `Produksi_${stepLabel}`);
 
             if (!result) {
@@ -573,22 +585,107 @@ const App = {
                 return;
             }
 
-            const today = App.getTodayDate();
-            Database.add('produksi', {
-                step: stepId,
-                label: stepLabel,
-                tanggal: today,
-                waktu: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-                user: App.state.currentUser?.nama,
-                foto: result.dataUrl,       // For display in app
-                fotoFile: result.filename   // Filename reference
+            // Initialize collection for this step
+            if (!App.produksiFotos[stepId]) {
+                App.produksiFotos[stepId] = [];
+            }
+
+            // Add to collection
+            App.produksiFotos[stepId].push({
+                dataUrl: result.dataUrl,
+                filename: result.filename
             });
 
-            App.showToast('success', `✅ ${stepLabel} selesai! Foto tersimpan.`);
-            App.renderProduksi();
+            // Render preview with "+ Tambah" and "✓ Selesaikan" buttons
+            App.renderProduksiFotoPreview(stepId, stepLabel, previewEl);
+
+            // Reset input
+            inputElement.value = '';
+
+            App.showToast('success', `📸 Foto ${App.produksiFotos[stepId].length} ditambahkan!`);
+
         } catch (error) {
             App.showToast('error', 'Gagal mengambil foto: ' + error);
         }
+    },
+
+    // Render produksi foto preview with action buttons
+    renderProduksiFotoPreview: (stepId, stepLabel, previewEl) => {
+        const photos = App.produksiFotos[stepId] || [];
+        if (photos.length === 0 || !previewEl) return;
+
+        const inputId = `add-foto-${stepId}`;
+
+        previewEl.innerHTML = `
+            <div class="foto-collection">
+                <div class="foto-grid">
+                    ${photos.map((p, i) => `
+                        <div class="foto-grid-item">
+                            <img src="${p.dataUrl}" alt="Foto ${i + 1}" onclick="FotoModule.showFoto('${p.dataUrl}', 'Foto ${i + 1}')">
+                            <span class="foto-grid-badge">${i + 1}</span>
+                        </div>
+                    `).join('')}
+                    <label class="foto-grid-add" for="${inputId}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <line x1="12" y1="9" x2="12" y2="17"/>
+                            <line x1="8" y1="13" x2="16" y2="13"/>
+                        </svg>
+                        <span>+ Foto</span>
+                        <input type="file" id="${inputId}" accept="image/*" capture="environment" 
+                            onchange="App.addProduksiPhoto('${stepId}', '${stepLabel}', this)" hidden>
+                    </label>
+                </div>
+                <div class="foto-actions" style="margin-top:10px; display:flex; gap:8px;">
+                    <button class="btn btn-success btn-sm" onclick="App.finalizeProduksiStep('${stepId}', '${stepLabel}')">
+                        ✅ Selesaikan (${photos.length} foto)
+                    </button>
+                    <button class="btn btn-outline btn-sm" onclick="App.cancelProduksiFoto('${stepId}')">
+                        ❌ Batal
+                    </button>
+                </div>
+            </div>
+        `;
+    },
+
+    // Finalize produksi step with all collected photos
+    finalizeProduksiStep: (stepId, stepLabel) => {
+        const photos = App.produksiFotos[stepId] || [];
+
+        if (photos.length === 0) {
+            App.showToast('error', 'Belum ada foto!');
+            return;
+        }
+
+        const today = App.getTodayDate();
+        Database.add('produksi', {
+            step: stepId,
+            label: stepLabel,
+            tanggal: today,
+            waktu: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+            user: App.state.currentUser?.nama,
+            foto: photos[0].dataUrl,           // First photo for thumbnail
+            fotoFile: photos[0].filename,
+            fotoCount: photos.length,          // Total photos count
+            allFotos: photos.map(p => p.filename) // All filenames
+        });
+
+        // Clear collection
+        delete App.produksiFotos[stepId];
+
+        App.showToast('success', `✅ ${stepLabel} selesai dengan ${photos.length} foto!`);
+        App.renderProduksi();
+    },
+
+    // Cancel produksi foto collection
+    cancelProduksiFoto: (stepId) => {
+        delete App.produksiFotos[stepId];
+        App.renderProduksi();
+    },
+
+    // Legacy function - redirect to new system
+    completeProduksiWithPhoto: async (stepId, stepLabel, inputElement) => {
+        await App.addProduksiPhoto(stepId, stepLabel, inputElement);
     },
 
 
