@@ -63,24 +63,19 @@ const FotoModule = {
         });
     },
 
-    // Tambah watermark ke gambar dengan GPS dan Logo BGN
+    // Tambah watermark ke gambar dengan GPS (simplified - no external logo)
     addWatermark: async (imageDataUrl) => {
-        // Get GPS location first (atau null jika tidak tersedia)
+        // Get GPS location first
         const gps = await FotoModule.getCurrentLocation();
-
-        // Load BGN logo
-        const logoUrl = 'assets/bgn-logo-watermark.png';
-        const logoImg = new Image();
-        logoImg.src = logoUrl;
 
         return new Promise((resolve, reject) => {
             const img = new Image();
-            img.onload = async () => {
+            img.onload = () => {
                 // Create canvas
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
 
-                // Set canvas size (max 1200px width for compression)
+                // Set canvas size (max 1200px width)
                 const maxWidth = 1200;
                 const scale = img.width > maxWidth ? maxWidth / img.width : 1;
                 canvas.width = img.width * scale;
@@ -89,122 +84,62 @@ const FotoModule = {
                 // Draw image
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                // Get watermark text
+                // Get watermark data
                 const now = new Date();
                 const tanggal = now.toLocaleDateString('id-ID', {
-                    weekday: 'short',
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
+                    weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
                 });
                 const jam = now.toLocaleTimeString('id-ID', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
                 }) + ' WITA';
-
                 const user = window.App?.state?.currentUser?.nama || 'User';
 
-                // Build watermark lines with icons (UTF-8 symbols)
-                const lines = [
-                    { icon: '📍', text: FotoModule.SPPG_ADDRESS, color: '#FFD700' },     // Gold - Location
-                    { icon: '📅', text: tanggal, color: '#FFFFFF' },                      // White - Date
-                    { icon: '⏰', text: jam, color: '#87CEEB' },                          // Light blue - Time
-                    { icon: '👤', text: user, color: '#90EE90' }                          // Light green - User
+                // Build lines
+                const allLines = [
+                    { text: `🏛️ ${FotoModule.SPPG_NAME}`, color: '#FFD700', bold: true },
+                    { text: `📍 ${FotoModule.SPPG_ADDRESS}`, color: '#FFFFFF' },
+                    { text: `📅 ${tanggal}`, color: '#FFFFFF' },
+                    { text: `⏰ ${jam}`, color: '#87CEEB' },
+                    { text: `👤 ${user}`, color: '#90EE90' }
                 ];
-
-                // Add GPS if available
                 if (gps) {
-                    lines.push({ icon: '🛰️', text: `${gps.lat}, ${gps.lng}`, color: '#00FFFF' }); // Cyan
+                    allLines.push({ text: `🛰️ ${gps.lat}, ${gps.lng}`, color: '#00FFFF' });
                 }
 
-                // Calculate sizes - SMALLER and more compact
-                const fontSize = Math.max(12, Math.min(canvas.width * 0.016, 16));
-                const padding = 10;
-                const lineHeight = fontSize * 1.5;
-                const logoSize = Math.min(canvas.width * 0.07, 55);  // Logo proportional to image
+                // Calculate sizes
+                const fontSize = Math.max(14, Math.min(canvas.width * 0.02, 20));
+                const lineHeight = fontSize * 1.6;
+                const padding = 15;
+                const totalHeight = allLines.length * lineHeight + padding;
 
-                // Badge dimensions (NO BACKGROUND - transparent)
-                const badgeHeight = lines.length * lineHeight + padding * 3 + fontSize * 1.2;
-                const badgeWidth = canvas.width * 0.40;
+                // Position: bottom-right corner with margin
+                const margin = 20;
+                const startX = canvas.width * 0.52;  // Start at 52% from left
+                const startY = canvas.height - totalHeight - margin;
 
-                // Position at FAR BOTTOM-RIGHT corner
-                const margin = 10;
-                const badgeX = canvas.width - badgeWidth - margin;
-                const badgeY = canvas.height - badgeHeight - margin;
-
-                // NO BACKGROUND - Just text with strong outline effect
-                // (Removed the filled rectangle for transparent look)
-
-                // Wait for logo to load then draw it
-                const drawWithLogo = () => {
-                    // Draw logo at top-left of badge area
-                    const logoX = badgeX + padding;
-                    const logoY = badgeY + padding;
-
-                    // Draw white circle behind logo for visibility
-                    ctx.beginPath();
-                    ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2 + 3, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                    ctx.fill();
-                    ctx.strokeStyle = 'rgba(201, 169, 98, 1)';  // Gold border
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-
-                    try {
-                        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-                    } catch (e) {
-                        console.log('Logo not loaded, skipping');
-                    }
-
-                    // Helper function to draw text with outline (readable on any background)
-                    const drawTextWithOutline = (text, x, y, fillColor, isTitle = false) => {
-                        ctx.font = isTitle ? `bold ${fontSize * 1.2}px Arial` : `bold ${fontSize}px Arial`;
-                        ctx.textAlign = 'left';
-
-                        // Strong black outline
-                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
-                        ctx.lineWidth = 4;
-                        ctx.lineJoin = 'round';
-                        ctx.strokeText(text, x, y);
-
-                        // Fill with color
-                        ctx.fillStyle = fillColor;
-                        ctx.fillText(text, x, y);
-                    };
-
-                    // Draw title next to logo (SPPG name)
-                    drawTextWithOutline(
-                        FotoModule.SPPG_NAME,
-                        logoX + logoSize + 10,
-                        logoY + logoSize / 2 + fontSize / 3,
-                        '#FFD700',  // Gold
-                        true
-                    );
-
-                    // Draw info lines below
-                    let y = badgeY + padding + logoSize + lineHeight + 5;
-
-                    lines.forEach((line) => {
-                        const fullText = `${line.icon} ${line.text}`;
-                        drawTextWithOutline(fullText, badgeX + padding, y, line.color);
-                        y += lineHeight;
-                    });
-
-                    // Convert to compressed JPEG
-                    const result = canvas.toDataURL('image/jpeg', 0.82);
-                    resolve(result);
+                // Draw text with outline helper
+                const drawText = (text, x, y, color, isBold) => {
+                    ctx.font = isBold ? `bold ${fontSize * 1.1}px Arial` : `bold ${fontSize}px Arial`;
+                    ctx.textAlign = 'left';
+                    // Black outline
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 4;
+                    ctx.lineJoin = 'round';
+                    ctx.strokeText(text, x, y);
+                    // Color fill
+                    ctx.fillStyle = color;
+                    ctx.fillText(text, x, y);
                 };
 
-                // Wait for logo or timeout
-                if (logoImg.complete) {
-                    drawWithLogo();
-                } else {
-                    logoImg.onload = drawWithLogo;
-                    logoImg.onerror = drawWithLogo; // Draw without logo if fails
-                    // Timeout fallback
-                    setTimeout(drawWithLogo, 500);
-                }
+                // Draw all lines
+                let y = startY + fontSize;
+                allLines.forEach(line => {
+                    drawText(line.text, startX, y, line.color, line.bold);
+                    y += lineHeight;
+                });
+
+                // Output
+                resolve(canvas.toDataURL('image/jpeg', 0.82));
             };
             img.onerror = () => reject('Gagal memuat gambar');
             img.src = imageDataUrl;
