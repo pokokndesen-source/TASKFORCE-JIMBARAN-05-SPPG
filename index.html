@@ -214,26 +214,28 @@
                     <div class="form-group">
                         <label>Driver</label>
                         <input type="text" id="distribusi-driver" placeholder="Nama driver">
+                        <div class="form-group">
+                            <label><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" width="16" height="16">
+                                        <path
+                                            d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                        <circle cx="12" cy="13" r="4" />
+                                    </svg></span> Foto Distribusi (Bisa Tambah Banyak)</label>
+                            <input type="file" id="distribusi-foto" accept="image/*" capture="environment"
+                                onchange="FotoModule.addPhotoToCollection(this, 'distribusi', 'preview-distribusi-foto', 'Distribusi')">
+                            <div id="preview-distribusi-foto" class="foto-preview"></div>
+                        </div>
                     </div>
-                    <label><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" width="16" height="16">
-                                <path
-                                    d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                                <circle cx="12" cy="13" r="4" />
-                            </svg></span> Foto Distribusi (Bisa Pilih Banyak)</label>
-                    <input type="file" id="distribusi-foto" accept="image/*" multiple
-                        onchange="FotoModule.handleMultiCapture(this, 'preview-distribusi-foto')">
-                    <div id="preview-distribusi-foto" class="foto-preview"></div>
+                    <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg></span> Simpan</button>
+                </form>
             </div>
-            <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                        <polyline points="17 21 17 13 7 13 7 21" />
-                        <polyline points="7 3 7 8 15 8" />
-                    </svg></span> Simpan</button>
-            </form>
         </div>
-    </div>
     </div>
 
     <!-- Modal: Logistik Form -->
@@ -280,9 +282,9 @@
                                     <path
                                         d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                                     <circle cx="12" cy="13" r="4" />
-                                </svg></span> Foto Bahan (Bisa Pilih Banyak)</label>
-                        <input type="file" id="logistik-foto" accept="image/*" multiple
-                            onchange="FotoModule.handleMultiCapture(this, 'preview-logistik-foto')">
+                                </svg></span> Foto Bahan (Bisa Tambah Banyak)</label>
+                        <input type="file" id="logistik-foto" accept="image/*" capture="environment"
+                            onchange="FotoModule.addPhotoToCollection(this, 'logistik', 'preview-logistik-foto', 'Logistik')">
                         <div id="preview-logistik-foto" class="foto-preview"></div>
                     </div>
                     <button type="submit" class="btn btn-primary btn-full"><span class="icon-inline"><svg

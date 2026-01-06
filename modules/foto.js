@@ -63,14 +63,19 @@ const FotoModule = {
         });
     },
 
-    // Tambah watermark ke gambar dengan GPS
+    // Tambah watermark ke gambar dengan GPS dan Logo BGN
     addWatermark: async (imageDataUrl) => {
         // Get GPS location first (atau null jika tidak tersedia)
         const gps = await FotoModule.getCurrentLocation();
 
+        // Load BGN logo
+        const logoUrl = 'assets/bgn-logo-watermark.png';
+        const logoImg = new Image();
+        logoImg.src = logoUrl;
+
         return new Promise((resolve, reject) => {
             const img = new Image();
-            img.onload = () => {
+            img.onload = async () => {
                 // Create canvas
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
@@ -96,71 +101,113 @@ const FotoModule = {
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit'
-                }) + ' WIB';
+                }) + ' WITA';
 
                 const user = window.App?.state?.currentUser?.nama || 'User';
 
-                // Build watermark lines - NO EMOJI to avoid width measurement issues
+                // Build watermark lines with icons (UTF-8 symbols)
                 const lines = [
-                    FotoModule.SPPG_NAME,
-                    FotoModule.SPPG_ADDRESS,
-                    tanggal,
-                    jam,
-                    user
+                    { icon: '📍', text: FotoModule.SPPG_ADDRESS, color: '#FFD700' },     // Gold - Location
+                    { icon: '📅', text: tanggal, color: '#FFFFFF' },                      // White - Date
+                    { icon: '⏰', text: jam, color: '#87CEEB' },                          // Light blue - Time
+                    { icon: '👤', text: user, color: '#90EE90' }                          // Light green - User
                 ];
 
                 // Add GPS if available
                 if (gps) {
-                    lines.push(`GPS: ${gps.lat}, ${gps.lng}`);
+                    lines.push({ icon: '🛰️', text: `${gps.lat}, ${gps.lng}`, color: '#00FFFF' }); // Cyan
                 }
 
-                // Calculate sizes
-                const fontSize = Math.max(12, Math.min(canvas.width * 0.018, 18));
-                const padding = 12;
-                const lineHeight = fontSize * 1.5;
-                const badgeHeight = lines.length * lineHeight + padding * 2;
+                // Calculate sizes - SMALLER and more compact
+                const fontSize = Math.max(11, Math.min(canvas.width * 0.015, 15));
+                const padding = 10;
+                const lineHeight = fontSize * 1.4;
+                const logoSize = Math.min(canvas.width * 0.08, 60);  // Logo proportional to image
 
-                // Badge at RIGHT CORNER - 45% width of canvas
-                const badgeWidth = canvas.width * 0.45;
-                const badgeX = canvas.width - badgeWidth; // Starts from 55% and extends to right edge
-                const badgeY = canvas.height - badgeHeight;
+                // Badge dimensions
+                const badgeHeight = lines.length * lineHeight + padding * 3 + fontSize * 1.2; // Extra for title
+                const badgeWidth = canvas.width * 0.38;  // 38% width - more to the right
 
-                // Draw semi-transparent background badge
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-                ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
+                // Position at FAR BOTTOM-RIGHT corner
+                const margin = 8;
+                const badgeX = canvas.width - badgeWidth - margin;
+                const badgeY = canvas.height - badgeHeight - margin;
 
-                // Setup text shadow for better visibility
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-                ctx.shadowBlur = 2;
-                ctx.shadowOffsetX = 1;
-                ctx.shadowOffsetY = 1;
+                // Draw semi-transparent background badge with rounded corners effect
+                ctx.fillStyle = 'rgba(27, 54, 93, 0.85)';  // BGN Navy with transparency
+                ctx.beginPath();
+                const radius = 8;
+                ctx.moveTo(badgeX + radius, badgeY);
+                ctx.lineTo(badgeX + badgeWidth - radius, badgeY);
+                ctx.quadraticCurveTo(badgeX + badgeWidth, badgeY, badgeX + badgeWidth, badgeY + radius);
+                ctx.lineTo(badgeX + badgeWidth, badgeY + badgeHeight - radius);
+                ctx.quadraticCurveTo(badgeX + badgeWidth, badgeY + badgeHeight, badgeX + badgeWidth - radius, badgeY + badgeHeight);
+                ctx.lineTo(badgeX + radius, badgeY + badgeHeight);
+                ctx.quadraticCurveTo(badgeX, badgeY + badgeHeight, badgeX, badgeY + badgeHeight - radius);
+                ctx.lineTo(badgeX, badgeY + radius);
+                ctx.quadraticCurveTo(badgeX, badgeY, badgeX + radius, badgeY);
+                ctx.closePath();
+                ctx.fill();
 
-                // Draw text with padding from left edge of badge
-                ctx.textAlign = 'left';
-                const textX = badgeX + padding;
+                // Draw gold border
+                ctx.strokeStyle = 'rgba(201, 169, 98, 0.7)';  // BGN Gold
+                ctx.lineWidth = 2;
+                ctx.stroke();
 
-                let y = badgeY + padding + fontSize;
-                lines.forEach((line, index) => {
-                    // First line (SPPG name) - GREEN
-                    if (index === 0) {
-                        ctx.font = `bold ${fontSize * 1.1}px Arial`;
-                        ctx.fillStyle = '#90EE90'; // Light green
-                    } else if (index === lines.length - 1 && gps) {
-                        // GPS coordinates - CYAN
-                        ctx.font = `${fontSize * 0.9}px monospace`;
-                        ctx.fillStyle = '#87CEEB'; // Light blue
-                    } else {
-                        ctx.font = `${fontSize}px Arial`;
-                        ctx.fillStyle = '#FFFFFF'; // White
+                // Wait for logo to load then draw it
+                const drawWithLogo = () => {
+                    // Draw logo at top-left of badge
+                    const logoX = badgeX + padding;
+                    const logoY = badgeY + padding;
+
+                    try {
+                        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+                    } catch (e) {
+                        console.log('Logo not loaded, skipping');
                     }
 
-                    ctx.fillText(line, textX, y);
-                    y += lineHeight;
-                });
+                    // Draw title next to logo
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+                    ctx.shadowBlur = 3;
+                    ctx.shadowOffsetX = 1;
+                    ctx.shadowOffsetY = 1;
 
-                // Convert to compressed JPEG
-                const result = canvas.toDataURL('image/jpeg', 0.75);
-                resolve(result);
+                    ctx.font = `bold ${fontSize * 1.1}px Arial`;
+                    ctx.fillStyle = '#C9A962';  // BGN Gold
+                    ctx.textAlign = 'left';
+                    ctx.fillText(FotoModule.SPPG_NAME, logoX + logoSize + 8, logoY + logoSize / 2 + fontSize / 3);
+
+                    // Draw info lines below
+                    let y = badgeY + padding + logoSize + lineHeight;
+
+                    lines.forEach((line) => {
+                        ctx.font = `${fontSize}px Arial`;
+                        ctx.fillStyle = line.color;
+
+                        // Draw icon + text
+                        const fullText = `${line.icon} ${line.text}`;
+                        ctx.fillText(fullText, badgeX + padding, y);
+                        y += lineHeight;
+                    });
+
+                    // Reset shadow
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+
+                    // Convert to compressed JPEG
+                    const result = canvas.toDataURL('image/jpeg', 0.80);
+                    resolve(result);
+                };
+
+                // Wait for logo or timeout
+                if (logoImg.complete) {
+                    drawWithLogo();
+                } else {
+                    logoImg.onload = drawWithLogo;
+                    logoImg.onerror = drawWithLogo; // Draw without logo if fails
+                    // Timeout fallback
+                    setTimeout(drawWithLogo, 500);
+                }
             };
             img.onerror = () => reject('Gagal memuat gambar');
             img.src = imageDataUrl;
@@ -432,9 +479,155 @@ const FotoModule = {
             }
             return [];
         }
+    },
+
+    // ============================================
+    // CAMERA-BASED MULTI-PHOTO (Foto dari Kamera)
+    // ============================================
+
+    // Storage untuk accumulated photos
+    photoCollections: {},
+
+    // Initialize collection untuk form tertentu
+    initCollection: (collectionId) => {
+        if (!FotoModule.photoCollections[collectionId]) {
+            FotoModule.photoCollections[collectionId] = [];
+        }
+        return FotoModule.photoCollections[collectionId];
+    },
+
+    // Clear collection
+    clearCollection: (collectionId) => {
+        FotoModule.photoCollections[collectionId] = [];
+    },
+
+    // Get collection
+    getCollection: (collectionId) => {
+        return FotoModule.photoCollections[collectionId] || [];
+    },
+
+    // Add photo ke collection dengan watermark + auto-save
+    addPhotoToCollection: async (inputElement, collectionId, previewContainerId, context = 'Foto') => {
+        const previewEl = document.getElementById(previewContainerId);
+
+        try {
+            // Show loading
+            const existingPhotos = FotoModule.getCollection(collectionId);
+            const loadingHtml = existingPhotos.length > 0
+                ? FotoModule.renderPhotoGrid(existingPhotos, collectionId, previewContainerId, context) + '<div class="foto-loading">Memproses foto baru...</div>'
+                : '<div class="foto-loading">Memproses foto...</div>';
+
+            if (previewEl) previewEl.innerHTML = loadingHtml;
+
+            // Process photo dengan watermark
+            const watermarked = await FotoModule.captureWithWatermark(inputElement);
+
+            if (watermarked) {
+                // Generate filename dan save ke HP
+                const photoNum = existingPhotos.length + 1;
+                const filename = FotoModule.generateFilename('SPPG_MBG', `${context}_${photoNum}`);
+                FotoModule.saveToPhone(watermarked, filename);
+
+                // Add ke collection
+                FotoModule.photoCollections[collectionId] = FotoModule.initCollection(collectionId);
+                FotoModule.photoCollections[collectionId].push({
+                    dataUrl: watermarked,
+                    filename: filename,
+                    index: photoNum
+                });
+            }
+
+            // Render updated grid
+            const photos = FotoModule.getCollection(collectionId);
+            if (previewEl) {
+                previewEl.innerHTML = FotoModule.renderPhotoGrid(photos, collectionId, previewContainerId, context);
+            }
+
+            // Reset input untuk bisa pilih foto baru
+            inputElement.value = '';
+
+            return photos;
+        } catch (error) {
+            console.error('Add photo error:', error);
+            if (previewEl) {
+                const existingPhotos = FotoModule.getCollection(collectionId);
+                previewEl.innerHTML = FotoModule.renderPhotoGrid(existingPhotos, collectionId, previewContainerId, context)
+                    + `<div class="foto-error">Gagal: ${error}</div>`;
+            }
+            return FotoModule.getCollection(collectionId);
+        }
+    },
+
+    // Render photo grid dengan tombol Tambah Foto Lagi
+    renderPhotoGrid: (photos, collectionId, previewContainerId, context) => {
+        if (photos.length === 0) return '';
+
+        const inputId = `foto-add-${collectionId}`;
+
+        return `
+            <div class="foto-collection">
+                <div class="foto-grid">
+                    ${photos.map((p, i) => `
+                        <div class="foto-grid-item">
+                            <img src="${p.dataUrl}" alt="Foto ${i + 1}" onclick="FotoModule.showFoto('${p.dataUrl}', 'Foto ${i + 1}')">
+                            <span class="foto-grid-badge">${i + 1}</span>
+                            <button class="foto-remove-btn" onclick="FotoModule.removeFromCollection('${collectionId}', ${i}, '${previewContainerId}', '${context}')" title="Hapus foto">×</button>
+                        </div>
+                    `).join('')}
+                    <label class="foto-grid-add" for="${inputId}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <line x1="12" y1="9" x2="12" y2="17"/>
+                            <line x1="8" y1="13" x2="16" y2="13"/>
+                        </svg>
+                        <span>+ Tambah</span>
+                        <input type="file" id="${inputId}" accept="image/*" capture="environment" 
+                            onchange="FotoModule.addPhotoToCollection(this, '${collectionId}', '${previewContainerId}', '${context}')" hidden>
+                    </label>
+                </div>
+                <p class="foto-grid-info">${photos.length} foto (tap untuk lihat, × untuk hapus)</p>
+            </div>
+        `;
+    },
+
+    // Remove foto dari collection
+    removeFromCollection: (collectionId, index, previewContainerId, context) => {
+        const photos = FotoModule.getCollection(collectionId);
+        if (photos[index]) {
+            photos.splice(index, 1);
+            // Re-render
+            const previewEl = document.getElementById(previewContainerId);
+            if (previewEl) {
+                previewEl.innerHTML = photos.length > 0
+                    ? FotoModule.renderPhotoGrid(photos, collectionId, previewContainerId, context)
+                    : '';
+            }
+        }
+    },
+
+    // Create camera input dengan multi-photo support
+    createCameraMultiInput: (collectionId, previewContainerId, context = 'Foto') => {
+        FotoModule.initCollection(collectionId);
+        const inputId = `foto-first-${collectionId}`;
+
+        return `
+            <div class="foto-multi-input">
+                <label class="btn btn-secondary foto-btn" for="${inputId}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    Ambil Foto
+                </label>
+                <input type="file" id="${inputId}" accept="image/*" capture="environment" 
+                    onchange="FotoModule.addPhotoToCollection(this, '${collectionId}', '${previewContainerId}', '${context}')" hidden>
+                <div id="${previewContainerId}" class="foto-preview"></div>
+            </div>
+        `;
     }
 };
 
 // Make available globally
 window.FotoModule = FotoModule;
+
 

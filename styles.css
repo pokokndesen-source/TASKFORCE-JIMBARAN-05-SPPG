@@ -1643,3 +1643,86 @@ body {
 .spin {
     animation: spin 1s linear infinite;
 }
+
+/* ---------- MULTI-PHOTO CAMERA ---------- */
+.foto-collection {
+    margin-top: 12px;
+}
+
+.foto-grid-add {
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    border: 2px dashed var(--bgn-blue);
+    background: rgba(124, 185, 232, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    color: var(--bgn-navy);
+    gap: 4px;
+}
+
+.foto-grid-add:hover {
+    background: rgba(124, 185, 232, 0.2);
+    border-color: var(--bgn-navy);
+}
+
+.foto-grid-add span {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.foto-grid-add svg {
+    width: 24px;
+    height: 24px;
+}
+
+.foto-remove-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--danger);
+    color: white;
+    border: none;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: var(--transition-fast);
+}
+
+.foto-grid-item:hover .foto-remove-btn {
+    opacity: 1;
+}
+
+.foto-multi-input {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.foto-multi-input .foto-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.edit-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(124, 185, 232, 0.2);
+    color: var(--bgn-navy);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+}

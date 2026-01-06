@@ -477,7 +477,7 @@ const App = {
         const html = `
             <div class="section-header">
                 <h2><span class="icon-inline">${App.getIconSVG('chef', 20)}</span> Produksi</h2>
-                ${App.canEdit() ? `<button class="btn btn-primary" onclick="App.showProduksiForm()"><span class="icon-inline">${App.getIconSVG('plus', 16)}</span> Tambah</button>` : `<span class="view-badge"><span class="icon-inline">${App.getIconSVG('info', 14)}</span> View Only</span>`}
+                ${App.canEdit() ? `<span class="edit-badge"><span class="icon-inline">${App.getIconSVG('edit', 14)}</span> Can Edit</span>` : `<span class="view-badge"><span class="icon-inline">${App.getIconSVG('info', 14)}</span> View Only</span>`}
             </div>
 
             <div class="checklist-card">
@@ -538,7 +538,7 @@ const App = {
                                     <div class="foto-capture">
                                         <label class="btn btn-secondary btn-sm">
                                             📷 Foto & Selesai
-                                            <input type="file" accept="image/*" capture="environment" 
+                                            <input type="file" accept="image/*" multiple 
                                                 onchange="App.completeProduksiWithPhoto('${step.id}', '${step.label}', this)" hidden>
                                         </label>
                                     </div>
@@ -792,6 +792,18 @@ const App = {
         const modal = document.getElementById('modal-distribusi');
         if (modal) {
             document.getElementById('distribusi-kloter').value = kloter;
+            modal.classList.remove('hidden');
+        }
+    },
+
+    // Show Logistik Form Modal
+    showLogistikForm: () => {
+        if (!App.canEdit()) {
+            App.showToast('error', 'Anda tidak punya akses untuk edit!');
+            return;
+        }
+        const modal = document.getElementById('modal-logistik');
+        if (modal) {
             modal.classList.remove('hidden');
         }
     },
