@@ -343,7 +343,14 @@ const App = {
 
             <!-- Timeline Progress -->
             <div class="card">
-                <h3><span class="icon-inline">${App.getIconSVG('clock', 18)}</span> Timeline Hari Ini</h3>
+                <div class="card-header-flex">
+                    <h3><span class="icon-inline">${App.getIconSVG('clock', 18)}</span> Timeline Hari Ini</h3>
+                    ${(user?.fullAccess || user?.role === 'admin') ? `
+                        <button class="btn btn-sm btn-outline" onclick="AlarmModule.showSettings(); setTimeout(() => AlarmModule.switchTab('timeline'), 100);">
+                            ✏️ Edit Timeline
+                        </button>
+                    ` : ''}
+                </div>
                 <div class="timeline">
                     ${App.renderTimeline()}
                 </div>
@@ -440,7 +447,12 @@ const App = {
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-        return App.TIMELINE.map((item, index) => {
+        // Use AlarmModule.schedule if available, otherwise fallback to App.TIMELINE
+        const timeline = (window.AlarmModule?.schedule?.length > 0)
+            ? window.AlarmModule.schedule
+            : App.TIMELINE;
+
+        return timeline.map((item, index) => {
             const [h, m] = item.jam.split(':').map(Number);
             const itemMinutes = h * 60 + m;
 
@@ -448,8 +460,8 @@ const App = {
             if (currentMinutes >= itemMinutes) {
                 status = 'done';
             }
-            if (index < App.TIMELINE.length - 1) {
-                const nextItem = App.TIMELINE[index + 1];
+            if (index < timeline.length - 1) {
+                const nextItem = timeline[index + 1];
                 const [nh, nm] = nextItem.jam.split(':').map(Number);
                 const nextMinutes = nh * 60 + nm;
                 if (currentMinutes >= itemMinutes && currentMinutes < nextMinutes) {
@@ -457,9 +469,13 @@ const App = {
                 }
             }
 
+            // Get icon - use AlarmModule.ICONS if available
+            const iconKey = item.icon || 'clock';
+            const iconEmoji = window.AlarmModule?.ICONS?.[iconKey] || '';
+
             return `
                 <div class="timeline-item ${status}">
-                    <span class="timeline-icon">${App.getIconSVG(item.icon, 22)}</span>
+                    <span class="timeline-icon">${iconEmoji || App.getIconSVG(iconKey, 22)}</span>
                     <span class="timeline-time">${item.jam}</span>
                     <span class="timeline-label">${item.label}</span>
                 </div>
@@ -1476,6 +1492,255 @@ const App = {
             overlay.classList.remove('show');
             setTimeout(() => overlay.remove(), 300);
         }, 2000);
+    },
+
+    // ============================================
+    // SETTINGS MENU
+    // ============================================
+
+    // Show settings menu with all options
+    showSettingsMenu: () => {
+        const user = App.state.currentUser;
+        if (!user) {
+            App.showToast('error', 'Login terlebih dahulu!');
+            return;
+        }
+
+        const modal = document.createElement('div');
+        modal.className = 'modal settings-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>⚙️ Pengaturan</h2>
+                    <button class="modal-close" onclick="this.closest('.modal').remove()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-options">
+                        <button class="settings-option" onclick="document.querySelector('.settings-modal').remove(); AlarmModule.showSettings();">
+                            <div class="settings-icon">🔔</div>
+                            <div class="settings-info">
+                                <h3>Pengaturan Alarm</h3>
+                                <p>Atur notifikasi & pengingat jadwal</p>
+                            </div>
+                        </button>
+                        
+                        <button class="settings-option" onclick="document.querySelector('.settings-modal').remove(); App.showResetMenu();">
+                            <div class="settings-icon">🔄</div>
+                            <div class="settings-info">
+                                <h3>Reset Data</h3>
+                                <p>Hapus data lokal atau sheet</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    },
+
+    // ============================================
+    // RESET DATA SYSTEM
+    // ============================================
+
+    // Show reset menu based on user role
+    showResetMenu: () => {
+        const user = App.state.currentUser;
+        if (!user) {
+            App.showToast('error', 'Login terlebih dahulu!');
+            return;
+        }
+
+        const canResetSheet = user.fullAccess === true;
+
+        const modal = document.createElement('div');
+        modal.className = 'modal reset-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🔄 Reset Data</h2>
+                    <button class="modal-close" onclick="this.closest('.modal').remove()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="reset-options">
+                        <button class="reset-option reset-local" onclick="App.confirmResetLocal()">
+                            <div class="reset-icon">📱</div>
+                            <div class="reset-info">
+                                <h3>Reset Data Lokal</h3>
+                                <p>Hapus data hari ini di HP/Laptop saja</p>
+                                <span class="reset-badge">Can Edit</span>
+                            </div>
+                        </button>
+                        
+                        ${canResetSheet ? `
+                        <button class="reset-option reset-sheet" onclick="App.confirmResetSheet()">
+                            <div class="reset-icon">📊</div>
+                            <div class="reset-info">
+                                <h3>Reset Data Sheet</h3>
+                                <p>Hapus SEMUA data di Google Sheet</p>
+                                <span class="reset-badge danger">Full Access</span>
+                            </div>
+                        </button>
+                        ` : `
+                        <div class="reset-option disabled">
+                            <div class="reset-icon">🔒</div>
+                            <div class="reset-info">
+                                <h3>Reset Data Sheet</h3>
+                                <p>Hanya Full Access Admin</p>
+                                <span class="reset-badge locked">Locked</span>
+                            </div>
+                        </div>
+                        `}
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    },
+
+    // Confirm reset local data
+    confirmResetLocal: () => {
+        document.querySelector('.reset-modal')?.remove();
+
+        const modal = document.createElement('div');
+        modal.className = 'modal confirm-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>⚠️ Konfirmasi Reset Lokal</h2>
+                </div>
+                <div class="modal-body">
+                    <p style="margin-bottom:15px;">Data yang akan dihapus:</p>
+                    <ul style="margin-left:20px; margin-bottom:20px;">
+                        <li>Data produksi hari ini</li>
+                        <li>Data distribusi hari ini</li>
+                        <li>Data logistik hari ini</li>
+                        <li>Cache foto sementara</li>
+                    </ul>
+                    <p style="color: var(--success);">✅ Data di Google Sheet TIDAK akan terhapus</p>
+                </div>
+                <div class="modal-footer" style="display:flex; gap:10px;">
+                    <button class="btn btn-outline" onclick="this.closest('.modal').remove()">Batal</button>
+                    <button class="btn btn-danger" onclick="App.resetLocalData()">Ya, Reset Lokal</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    },
+
+    // Confirm reset sheet data (Full Access only)
+    confirmResetSheet: () => {
+        document.querySelector('.reset-modal')?.remove();
+
+        const modal = document.createElement('div');
+        modal.className = 'modal confirm-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🚨 BAHAYA: Reset Sheet</h2>
+                </div>
+                <div class="modal-body">
+                    <div style="background:rgba(220,53,69,0.1); padding:15px; border-radius:8px; margin-bottom:15px;">
+                        <p style="color: var(--danger); font-weight:bold;">⚠️ PERINGATAN:</p>
+                        <p>Ini akan menghapus SEMUA data di Google Sheet termasuk:</p>
+                        <ul style="margin-left:20px; margin-top:10px;">
+                            <li>Data produksi</li>
+                            <li>Data distribusi</li>
+                            <li>Data logistik</li>
+                        </ul>
+                    </div>
+                    <p style="margin-bottom:10px;">Masukkan PIN Anda untuk konfirmasi:</p>
+                    <input type="password" id="reset-pin-input" maxlength="4" placeholder="PIN 4 digit" 
+                        style="width:100%; padding:12px; font-size:18px; text-align:center; border:2px solid var(--danger); border-radius:8px;">
+                </div>
+                <div class="modal-footer" style="display:flex; gap:10px;">
+                    <button class="btn btn-outline" onclick="this.closest('.modal').remove()">Batal</button>
+                    <button class="btn btn-danger" onclick="App.resetSheetData()">🗑️ HAPUS SEMUA</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('reset-pin-input')?.focus();
+    },
+
+    // Execute local data reset
+    resetLocalData: () => {
+        document.querySelector('.confirm-modal')?.remove();
+
+        const today = App.getTodayDate();
+        let count = 0;
+
+        // Clear today's data from localStorage
+        ['produksi', 'distribusi', 'logistik'].forEach(type => {
+            const records = Database.getByDate(type, today);
+            records.forEach(r => {
+                Database.delete(type, r.id);
+                count++;
+            });
+        });
+
+        // Clear photo collections
+        if (App.produksiFotos) {
+            App.produksiFotos = {};
+        }
+
+        App.showToast('success', `✅ ${count} data lokal dihapus!`);
+        App.navigateTo('dashboard');
+    },
+
+    // Execute sheet data reset (Full Access only)
+    resetSheetData: async () => {
+        const user = App.state.currentUser;
+        const pinInput = document.getElementById('reset-pin-input');
+
+        if (!user?.fullAccess) {
+            App.showToast('error', 'Akses ditolak!');
+            return;
+        }
+
+        // Verify PIN
+        if (pinInput?.value !== user.pin) {
+            App.showToast('error', 'PIN salah!');
+            pinInput?.focus();
+            return;
+        }
+
+        document.querySelector('.confirm-modal')?.remove();
+        App.showToast('info', '⏳ Menghapus data di Sheet...');
+
+        try {
+            // Call API to reset sheet
+            if (Database.isApiConfigured()) {
+                const response = await fetch(`${Database.API_URL}?action=resetData`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user: user.nama,
+                        pin: user.pin,
+                        resetType: 'all'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Also clear local data
+                    App.resetLocalData();
+                    App.showToast('success', '✅ Semua data di Sheet telah direset!');
+                } else {
+                    App.showToast('error', result.message || 'Gagal reset sheet');
+                }
+            } else {
+                // Offline mode - only reset local
+                App.resetLocalData();
+                App.showToast('warning', 'Offline - Hanya data lokal yang direset');
+            }
+        } catch (error) {
+            App.showToast('error', 'Error: ' + error.message);
+        }
     }
 };
 

@@ -12,7 +12,7 @@ const Database = {
     VERSION: '2.2.0',
 
     // Google Apps Script URL (DEPLOYMENT URL - JANGAN GANTI!)
-    API_URL: 'https://script.google.com/macros/s/AKfycbw64IHTQzSbEMZLUqWk3FIvYaytB004vNHaBFvGGD9NgpaCWmNa5N7NGcS0vwzMYhbEHg/exec',
+    API_URL: 'https://script.google.com/macros/s/AKfycbwo-NuKOFSlBa2YFuBSkyPZHHVHkF1RAOiTsUoHGQlvS_CuOvNbCCPMSFMK2BwJHwG8qA/exec',
 
     // ⚠️ KUNCI RAHASIA API - HARUS SAMA DENGAN DI GOOGLE APPS SCRIPT!
     // Ganti ini jika Anda mengubah kunci di Apps Script
@@ -23,7 +23,7 @@ const Database = {
     // ==========================================
     // Semua data disimpan di LocalStorage dengan prefix 'sppg_v2_'
 
-    TABLES: ['users', 'produksi', 'distribusi', 'logistik', 'audit'],
+    TABLES: ['users', 'produksi', 'distribusi', 'logistik', 'audit', 'settings'],
 
     // ==========================================
     // CORE FUNCTIONS
