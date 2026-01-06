@@ -120,9 +120,9 @@ const FotoModule = {
                 const lineHeight = fontSize * 1.5;
                 const badgeHeight = lines.length * lineHeight + padding * 2;
 
-                // Badge extends from left position to RIGHT EDGE of image
-                const badgeWidth = canvas.width * 0.6;
-                const badgeX = canvas.width - badgeWidth; // Extends to right edge
+                // Badge at RIGHT CORNER - 45% width of canvas
+                const badgeWidth = canvas.width * 0.45;
+                const badgeX = canvas.width - badgeWidth; // Starts from 55% and extends to right edge
                 const badgeY = canvas.height - badgeHeight;
 
                 // Draw semi-transparent background badge
