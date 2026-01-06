@@ -117,61 +117,65 @@ const FotoModule = {
                 }) + ' WITA';
                 const user = window.App?.state?.currentUser?.nama || 'User';
 
-                // Build lines
+                // Build lines - MINIMALIST style (no emoji)
                 const allLines = [
                     { text: FotoModule.SPPG_NAME, color: '#FFD700', bold: true },
-                    { text: `📍 ${FotoModule.SPPG_ADDRESS}`, color: '#FFFFFF' },
-                    { text: `📅 ${tanggal}`, color: '#FFFFFF' },
-                    { text: `⏰ ${jam}`, color: '#87CEEB' },
-                    { text: `👤 ${user}`, color: '#90EE90' }
+                    { text: FotoModule.SPPG_ADDRESS, color: '#FFFFFF' },
+                    { text: tanggal, color: '#FFFFFF' },
+                    { text: jam, color: '#87CEEB' },
+                    { text: user, color: '#90EE90' }
                 ];
                 if (gps) {
-                    allLines.push({ text: `🛰️ ${gps.lat}, ${gps.lng}`, color: '#00FFFF' });
+                    allLines.push({ text: `${gps.lat}, ${gps.lng}`, color: '#00FFFF' });
                 }
 
-                // Calculate sizes
-                const fontSize = Math.max(13, Math.min(canvas.width * 0.018, 18));
-                const lineHeight = fontSize * 1.5;
-                const logoSize = Math.min(canvas.width * 0.06, 50);  // Logo size
-                const padding = 12;
+                // Calculate sizes - LARGER for better visibility
+                const fontSize = Math.max(14, Math.min(canvas.width * 0.02, 20));
+                const lineHeight = fontSize * 1.4;
+                const logoSize = Math.min(canvas.width * 0.09, 70);  // Bigger logo
+                const padding = 15;
 
-                // Total height = logo row + text lines
-                const totalHeight = logoSize + allLines.length * lineHeight + padding * 2;
+                // Total height
+                const totalHeight = logoSize + (allLines.length - 1) * lineHeight + padding * 2;
 
-                // Position: bottom-right corner with margin
-                const margin = 15;
-                const startX = canvas.width * 0.55;  // Start at 55% from left
-                const startY = canvas.height - totalHeight - margin;
+                // Badge width
+                const badgeWidth = canvas.width * 0.48;
 
-                // Draw text with outline helper
+                // Position: bottom-right corner
+                const margin = 12;
+                const badgeX = canvas.width - badgeWidth - margin;
+                const badgeY = canvas.height - totalHeight - margin;
+
+                // Draw semi-transparent dark background
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+                const radius = 10;
+                ctx.beginPath();
+                ctx.moveTo(badgeX + radius, badgeY);
+                ctx.lineTo(badgeX + badgeWidth - radius, badgeY);
+                ctx.quadraticCurveTo(badgeX + badgeWidth, badgeY, badgeX + badgeWidth, badgeY + radius);
+                ctx.lineTo(badgeX + badgeWidth, badgeY + totalHeight - radius);
+                ctx.quadraticCurveTo(badgeX + badgeWidth, badgeY + totalHeight, badgeX + badgeWidth - radius, badgeY + totalHeight);
+                ctx.lineTo(badgeX + radius, badgeY + totalHeight);
+                ctx.quadraticCurveTo(badgeX, badgeY + totalHeight, badgeX, badgeY + totalHeight - radius);
+                ctx.lineTo(badgeX, badgeY + radius);
+                ctx.quadraticCurveTo(badgeX, badgeY, badgeX + radius, badgeY);
+                ctx.closePath();
+                ctx.fill();
+
+                // Draw text helper (no outline needed with background)
                 const drawText = (text, x, y, color, isBold) => {
-                    ctx.font = isBold ? `bold ${fontSize * 1.15}px Arial` : `bold ${fontSize}px Arial`;
+                    ctx.font = isBold ? `bold ${fontSize * 1.1}px Arial` : `${fontSize}px Arial`;
                     ctx.textAlign = 'left';
-                    // Black outline
-                    ctx.strokeStyle = '#000000';
-                    ctx.lineWidth = 4;
-                    ctx.lineJoin = 'round';
-                    ctx.strokeText(text, x, y);
-                    // Color fill
                     ctx.fillStyle = color;
                     ctx.fillText(text, x, y);
                 };
 
+                // Logo position
+                const logoX = badgeX + padding;
+                const logoY = badgeY + padding;
+
                 // Draw logo if loaded
-                const logoX = startX;
-                const logoY = startY;
-
                 if (FotoModule.logoLoaded && FotoModule.logoImage) {
-                    // Draw white circle background for logo
-                    ctx.beginPath();
-                    ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2 + 3, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-                    ctx.fill();
-                    ctx.strokeStyle = '#C9A962';  // Gold border
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-
-                    // Draw logo
                     try {
                         ctx.drawImage(FotoModule.logoImage, logoX, logoY, logoSize, logoSize);
                     } catch (e) {
@@ -180,14 +184,14 @@ const FotoModule = {
                 }
 
                 // Draw title next to logo
-                const titleX = FotoModule.logoLoaded ? logoX + logoSize + 10 : startX;
+                const titleX = logoX + logoSize + 12;
                 const titleY = logoY + logoSize / 2 + fontSize / 3;
                 drawText(allLines[0].text, titleX, titleY, allLines[0].color, true);
 
-                // Draw remaining lines below logo
-                let y = startY + logoSize + lineHeight;
+                // Draw remaining lines below logo - minimalist style
+                let y = badgeY + padding + logoSize + lineHeight - 5;
                 for (let i = 1; i < allLines.length; i++) {
-                    drawText(allLines[i].text, startX, y, allLines[i].color, false);
+                    drawText(allLines[i].text, badgeX + padding, y, allLines[i].color, false);
                     y += lineHeight;
                 }
 
