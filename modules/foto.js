@@ -119,46 +119,37 @@ const FotoModule = {
                 }
 
                 // Calculate sizes - SMALLER and more compact
-                const fontSize = Math.max(11, Math.min(canvas.width * 0.015, 15));
+                const fontSize = Math.max(12, Math.min(canvas.width * 0.016, 16));
                 const padding = 10;
-                const lineHeight = fontSize * 1.4;
-                const logoSize = Math.min(canvas.width * 0.08, 60);  // Logo proportional to image
+                const lineHeight = fontSize * 1.5;
+                const logoSize = Math.min(canvas.width * 0.07, 55);  // Logo proportional to image
 
-                // Badge dimensions
-                const badgeHeight = lines.length * lineHeight + padding * 3 + fontSize * 1.2; // Extra for title
-                const badgeWidth = canvas.width * 0.38;  // 38% width - more to the right
+                // Badge dimensions (NO BACKGROUND - transparent)
+                const badgeHeight = lines.length * lineHeight + padding * 3 + fontSize * 1.2;
+                const badgeWidth = canvas.width * 0.40;
 
                 // Position at FAR BOTTOM-RIGHT corner
-                const margin = 8;
+                const margin = 10;
                 const badgeX = canvas.width - badgeWidth - margin;
                 const badgeY = canvas.height - badgeHeight - margin;
 
-                // Draw semi-transparent background badge with rounded corners effect
-                ctx.fillStyle = 'rgba(27, 54, 93, 0.85)';  // BGN Navy with transparency
-                ctx.beginPath();
-                const radius = 8;
-                ctx.moveTo(badgeX + radius, badgeY);
-                ctx.lineTo(badgeX + badgeWidth - radius, badgeY);
-                ctx.quadraticCurveTo(badgeX + badgeWidth, badgeY, badgeX + badgeWidth, badgeY + radius);
-                ctx.lineTo(badgeX + badgeWidth, badgeY + badgeHeight - radius);
-                ctx.quadraticCurveTo(badgeX + badgeWidth, badgeY + badgeHeight, badgeX + badgeWidth - radius, badgeY + badgeHeight);
-                ctx.lineTo(badgeX + radius, badgeY + badgeHeight);
-                ctx.quadraticCurveTo(badgeX, badgeY + badgeHeight, badgeX, badgeY + badgeHeight - radius);
-                ctx.lineTo(badgeX, badgeY + radius);
-                ctx.quadraticCurveTo(badgeX, badgeY, badgeX + radius, badgeY);
-                ctx.closePath();
-                ctx.fill();
-
-                // Draw gold border
-                ctx.strokeStyle = 'rgba(201, 169, 98, 0.7)';  // BGN Gold
-                ctx.lineWidth = 2;
-                ctx.stroke();
+                // NO BACKGROUND - Just text with strong outline effect
+                // (Removed the filled rectangle for transparent look)
 
                 // Wait for logo to load then draw it
                 const drawWithLogo = () => {
-                    // Draw logo at top-left of badge
+                    // Draw logo at top-left of badge area
                     const logoX = badgeX + padding;
                     const logoY = badgeY + padding;
+
+                    // Draw white circle behind logo for visibility
+                    ctx.beginPath();
+                    ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2 + 3, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(201, 169, 98, 1)';  // Gold border
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
 
                     try {
                         ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
@@ -166,36 +157,42 @@ const FotoModule = {
                         console.log('Logo not loaded, skipping');
                     }
 
-                    // Draw title next to logo
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-                    ctx.shadowBlur = 3;
-                    ctx.shadowOffsetX = 1;
-                    ctx.shadowOffsetY = 1;
+                    // Helper function to draw text with outline (readable on any background)
+                    const drawTextWithOutline = (text, x, y, fillColor, isTitle = false) => {
+                        ctx.font = isTitle ? `bold ${fontSize * 1.2}px Arial` : `bold ${fontSize}px Arial`;
+                        ctx.textAlign = 'left';
 
-                    ctx.font = `bold ${fontSize * 1.1}px Arial`;
-                    ctx.fillStyle = '#C9A962';  // BGN Gold
-                    ctx.textAlign = 'left';
-                    ctx.fillText(FotoModule.SPPG_NAME, logoX + logoSize + 8, logoY + logoSize / 2 + fontSize / 3);
+                        // Strong black outline
+                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)';
+                        ctx.lineWidth = 4;
+                        ctx.lineJoin = 'round';
+                        ctx.strokeText(text, x, y);
+
+                        // Fill with color
+                        ctx.fillStyle = fillColor;
+                        ctx.fillText(text, x, y);
+                    };
+
+                    // Draw title next to logo (SPPG name)
+                    drawTextWithOutline(
+                        FotoModule.SPPG_NAME,
+                        logoX + logoSize + 10,
+                        logoY + logoSize / 2 + fontSize / 3,
+                        '#FFD700',  // Gold
+                        true
+                    );
 
                     // Draw info lines below
-                    let y = badgeY + padding + logoSize + lineHeight;
+                    let y = badgeY + padding + logoSize + lineHeight + 5;
 
                     lines.forEach((line) => {
-                        ctx.font = `${fontSize}px Arial`;
-                        ctx.fillStyle = line.color;
-
-                        // Draw icon + text
                         const fullText = `${line.icon} ${line.text}`;
-                        ctx.fillText(fullText, badgeX + padding, y);
+                        drawTextWithOutline(fullText, badgeX + padding, y, line.color);
                         y += lineHeight;
                     });
 
-                    // Reset shadow
-                    ctx.shadowColor = 'transparent';
-                    ctx.shadowBlur = 0;
-
                     // Convert to compressed JPEG
-                    const result = canvas.toDataURL('image/jpeg', 0.80);
+                    const result = canvas.toDataURL('image/jpeg', 0.82);
                     resolve(result);
                 };
 
