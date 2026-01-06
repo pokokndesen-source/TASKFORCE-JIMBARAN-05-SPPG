@@ -308,12 +308,19 @@
         document.getElementById('form-distribusi')?.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Process photo if exists
+            // Process photo if exists - save to phone and get filename
             let fotoData = null;
+            let fotoFilename = '';
             const fotoInput = document.getElementById('distribusi-foto');
+            const namaSekolah = document.getElementById('distribusi-sekolah').value;
+
             if (fotoInput && fotoInput.files[0]) {
                 try {
-                    fotoData = await FotoModule.captureWithWatermark(fotoInput);
+                    const result = await FotoModule.captureAndSave(fotoInput, `Distribusi_${namaSekolah}`);
+                    if (result) {
+                        fotoData = result.dataUrl;
+                        fotoFilename = result.filename;
+                    }
                 } catch (err) {
                     console.log('Foto error:', err);
                 }
@@ -321,10 +328,11 @@
 
             const data = {
                 kloter: document.getElementById('distribusi-kloter').value,
-                sekolah: document.getElementById('distribusi-sekolah').value,
+                sekolah: namaSekolah,
                 jumlahBox: document.getElementById('distribusi-box').value,
                 driver: document.getElementById('distribusi-driver').value,
                 foto: fotoData,
+                fotoFile: fotoFilename,
                 tanggal: App.getTodayDate(),
                 waktu: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
                 user: App.state.currentUser?.nama,
@@ -334,31 +342,39 @@
             document.getElementById('modal-distribusi').classList.add('hidden');
             e.target.reset();
             document.getElementById('preview-distribusi-foto').innerHTML = '';
-            App.showToast('success', 'Distribusi berhasil dicatat!');
+            App.showToast('success', 'Distribusi berhasil dicatat! Foto tersimpan di HP.');
             App.renderDistribusi();
         });
 
         document.getElementById('form-logistik')?.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Process photo if exists
+            // Process photo if exists - save to phone and get filename
             let fotoData = null;
+            let fotoFilename = '';
             const fotoInput = document.getElementById('logistik-foto');
+            const namaBahan = document.getElementById('logistik-nama').value;
+
             if (fotoInput && fotoInput.files[0]) {
                 try {
-                    fotoData = await FotoModule.captureWithWatermark(fotoInput);
+                    const result = await FotoModule.captureAndSave(fotoInput, `Logistik_${namaBahan}`);
+                    if (result) {
+                        fotoData = result.dataUrl;      // For local display
+                        fotoFilename = result.filename; // For cloud storage
+                    }
                 } catch (err) {
                     console.log('Foto error:', err);
                 }
             }
 
             const data = {
-                nama: document.getElementById('logistik-nama').value,
+                nama: namaBahan,
                 berat: document.getElementById('logistik-berat').value,
                 harga: document.getElementById('logistik-harga').value,
                 supplier: document.getElementById('logistik-supplier')?.value || '',
                 qcStatus: document.getElementById('logistik-qc').value,
-                foto: fotoData,
+                foto: fotoData,           // Keep full data for local display
+                fotoFile: fotoFilename,   // Just filename for reference
                 tanggal: App.getTodayDate(),
                 waktu: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
                 user: App.state.currentUser?.nama
@@ -367,7 +383,7 @@
             document.getElementById('modal-logistik').classList.add('hidden');
             e.target.reset();
             document.getElementById('preview-logistik-foto').innerHTML = '';
-            App.showToast('success', 'Bahan berhasil dicatat!');
+            App.showToast('success', 'Bahan berhasil dicatat! Foto tersimpan di HP.');
             App.renderLogistik();
         });
 

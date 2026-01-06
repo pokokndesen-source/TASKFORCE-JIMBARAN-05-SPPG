@@ -492,7 +492,13 @@ const App = {
         App.showToast('info', '⏳ Memproses foto...');
 
         try {
-            const fotoData = await FotoModule.captureWithWatermark(inputElement);
+            // Use captureAndSave to add watermark AND save to phone
+            const result = await FotoModule.captureAndSave(inputElement, `Produksi_${stepLabel}`);
+
+            if (!result) {
+                App.showToast('error', 'Gagal memproses foto');
+                return;
+            }
 
             const today = App.getTodayDate();
             Database.add('produksi', {
@@ -501,10 +507,11 @@ const App = {
                 tanggal: today,
                 waktu: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
                 user: App.state.currentUser?.nama,
-                foto: fotoData
+                foto: result.dataUrl,       // For display in app
+                fotoFile: result.filename   // Filename reference
             });
 
-            App.showToast('success', `✅ ${stepLabel} selesai dengan foto!`);
+            App.showToast('success', `✅ ${stepLabel} selesai! Foto tersimpan.`);
             App.renderProduksi();
         } catch (error) {
             App.showToast('error', 'Gagal mengambil foto: ' + error);
@@ -675,15 +682,27 @@ const App = {
         App.showToast('info', '⏳ Memproses foto...');
 
         try {
-            const fotoData = await FotoModule.captureWithWatermark(inputElement);
+            // Get sekolah name for filename
+            const records = Database.getAll('distribusi');
+            const record = records.find(r => r.id === recordId);
+            const sekolahName = record?.sekolah || 'Sekolah';
+
+            // Use captureAndSave to add watermark AND save to phone
+            const result = await FotoModule.captureAndSave(inputElement, `Distribusi_${sekolahName}`);
+
+            if (!result) {
+                App.showToast('error', 'Gagal memproses foto');
+                return;
+            }
 
             Database.update('distribusi', recordId, {
                 status: 'selesai',
                 jam_sampai: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-                foto: fotoData
+                foto: result.dataUrl,
+                fotoFile: result.filename
             });
 
-            App.showToast('success', '✅ Pengiriman selesai!');
+            App.showToast('success', '✅ Pengiriman selesai! Foto tersimpan.');
             App.renderDistribusi();
         } catch (error) {
             App.showToast('error', 'Gagal mengambil foto: ' + error);

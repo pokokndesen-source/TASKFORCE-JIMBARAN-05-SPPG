@@ -341,18 +341,25 @@ const Database = {
         }
     },
 
-    // Push single item to cloud
+    // Push single item to cloud (exclude base64 foto to save space)
     pushItemToCloud: async (table, item) => {
         if (!Database.isApiConfigured()) {
             return { success: false, error: 'API belum dikonfigurasi' };
         }
 
         try {
+            // Create a copy without the large base64 foto data
+            const cloudItem = { ...item };
+            if (cloudItem.foto && cloudItem.foto.startsWith('data:image')) {
+                // Remove base64 data, keep only filename reference
+                delete cloudItem.foto;
+            }
+
             const response = await fetch(Database.API_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({ action: 'add', sheet: table, data: item, apiKey: Database.API_SECRET_KEY })
+                body: JSON.stringify({ action: 'add', sheet: table, data: cloudItem, apiKey: Database.API_SECRET_KEY })
             });
             // With no-cors, we can't read the response, so assume success
             return { success: true, message: 'Item pushed' };
