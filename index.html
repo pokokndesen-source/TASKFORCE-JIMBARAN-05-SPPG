@@ -4,23 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#2e7d32">
-    <meta name="description" content="Aplikasi SPPG MBG Jimbaran 05 - Sistem Pencatatan Makanan Bergizi">
+    <meta name="theme-color" content="#1B365D">
+    <meta name="description" content="Aplikasi SPPG MBG Jimbaran 05 - Badan Gizi Nasional">
 
     <!-- FORCE NO CACHE -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 
-    <title>SPPG MBG Jimbaran 05</title>
+    <title>SPPG MBG - Badan Gizi Nasional</title>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="assets/icon-192.png">
-    <link rel="apple-touch-icon" href="assets/icon-192.png">
+    <link rel="icon" type="image/png" href="assets/bgn-logo.png">
+    <link rel="apple-touch-icon" href="assets/bgn-logo.png">
+
+    <!-- Google Fonts for Modern Look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Styles with cache buster -->
-    <link rel="stylesheet" href="styles.css?v=3">
+    <link rel="stylesheet" href="styles.css?v=4">
 
     <!-- FORCE CLEAR OLD SERVICE WORKER -->
     <script>
@@ -29,36 +34,42 @@
             navigator.serviceWorker.getRegistrations().then(function (registrations) {
                 for (let registration of registrations) {
                     registration.unregister();
-                    console.log('🗑️ Unregistered old SW');
                 }
             });
-            // Clear all caches
             if ('caches' in window) {
                 caches.keys().then(function (names) {
-                    for (let name of names) {
-                        caches.delete(name);
-                        console.log('🗑️ Deleted cache:', name);
-                    }
+                    for (let name of names) caches.delete(name);
                 });
             }
         }
     </script>
+
+    <style>
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+    </style>
 </head>
 
 <body>
     <!-- =============== SPLASH SCREEN =============== -->
     <div id="splash-screen" class="splash-screen">
-        <div class="splash-logo">🍱</div>
+        <div class="splash-logo">
+            <img src="assets/bgn-logo.png" alt="BGN Logo">
+        </div>
         <h1 class="splash-title">SPPG MBG</h1>
-        <p class="splash-subtitle">Jimbaran 05</p>
+        <p class="splash-subtitle">Badan Gizi Nasional</p>
     </div>
 
     <!-- =============== LOGIN SCREEN =============== -->
     <div id="login-screen" class="login-screen hidden">
         <div class="login-card">
             <div class="login-header">
-                <h1>🍱 SPPG MBG</h1>
-                <p>Masuk dengan nomor HP Anda</p>
+                <div class="login-logo">
+                    <img src="assets/bgn-logo.png" alt="BGN Logo">
+                </div>
+                <h1>SPPG MBG</h1>
+                <p>Badan Gizi Nasional - Jimbaran 05</p>
             </div>
 
             <form id="login-form">
@@ -85,16 +96,16 @@
         <!-- Header -->
         <header class="app-header">
             <div class="header-left">
-                <span class="header-logo">🍱</span>
+                <div class="header-logo">
+                    <img src="assets/bgn-logo.png" alt="BGN">
+                </div>
                 <div class="header-title">
                     <h1>SPPG MBG</h1>
                     <p id="current-date">Loading...</p>
                 </div>
             </div>
             <div class="header-right">
-                <div class="user-info-header">
-                    <span id="user-name">User</span>
-                </div>
+                <span id="user-name">User</span>
                 <div class="user-avatar" id="btn-logout" title="Logout">👤</div>
             </div>
         </header>

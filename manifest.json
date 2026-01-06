@@ -1,21 +1,21 @@
 {
-    "name": "SPPG MBG Jimbaran 05",
+    "name": "SPPG MBG - Badan Gizi Nasional",
     "short_name": "SPPG MBG",
-    "description": "Sistem Pengelolaan Pangan Gizi - MBG Jimbaran 05",
+    "description": "Sistem Pengelolaan Pangan Gizi - Badan Gizi Nasional Jimbaran 05",
     "start_url": "index.html",
     "display": "standalone",
-    "background_color": "#2e7d32",
-    "theme_color": "#2e7d32",
+    "background_color": "#1B365D",
+    "theme_color": "#1B365D",
     "orientation": "portrait",
     "icons": [
         {
-            "src": "assets/icon-192.png",
+            "src": "assets/bgn-logo.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "assets/icon-512.png",
+            "src": "assets/bgn-logo.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
