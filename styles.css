@@ -988,13 +988,22 @@ body {
 }
 
 .user-role.admin {
+    background: linear-gradient(135deg, var(--bgn-gold-light) 0%, var(--bgn-gold) 100%);
+    color: var(--bgn-navy-dark);
+}
+
+.user-role.editor,
+.user-role.koordinator,
+.user-role.staff,
+.user-role.aslab {
     background: linear-gradient(135deg, var(--bgn-blue-light) 0%, var(--bgn-blue) 100%);
     color: var(--bgn-navy);
 }
 
-.user-role.koordinator {
-    background: linear-gradient(135deg, var(--bgn-gold-light) 0%, var(--bgn-gold) 100%);
-    color: var(--bgn-navy-dark);
+.user-role.viewer,
+.user-role.relawan {
+    background: var(--bgn-sky);
+    color: var(--gray);
 }
 
 .user-status {

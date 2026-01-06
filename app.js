@@ -122,10 +122,10 @@ const App = {
     // ==========================================
     // ROLE-BASED ACCESS CONTROL
     // ==========================================
-    // Roles yang bisa EDIT: admin, koordinator, staff, aslab
-    // Roles yang HANYA VIEW: relawan
+    // Roles yang bisa EDIT: admin, editor (new), plus legacy roles for backward compatibility
+    // Roles yang HANYA VIEW: viewer (new), relawan (legacy)
 
-    EDIT_ROLES: ['admin', 'koordinator', 'staff', 'aslab'],
+    EDIT_ROLES: ['admin', 'editor', 'koordinator', 'staff', 'aslab'],
 
     canEdit: () => {
         const user = App.state.currentUser;
@@ -136,6 +136,21 @@ const App = {
     isAdmin: () => {
         const user = App.state.currentUser;
         return user?.role?.toLowerCase() === 'admin';
+    },
+
+    // Get friendly role label
+    getRoleLabel: (role) => {
+        const labels = {
+            'admin': 'Full Access',
+            'editor': 'Can Edit',
+            'viewer': 'View Only',
+            // Legacy roles
+            'koordinator': 'Can Edit',
+            'staff': 'Can Edit',
+            'aslab': 'Can Edit',
+            'relawan': 'View Only'
+        };
+        return labels[role?.toLowerCase()] || role || 'View Only';
     },
 
     // ==========================================
@@ -903,7 +918,7 @@ const App = {
                             <div class="user-name">${u.nama}</div>
                             <div class="user-meta">${u.jabatan || '-'} • ${u.phone}</div>
                         </div>
-                        <div class="user-role ${u.role}">${u.role}</div>
+                        <div class="user-role ${u.role}">${App.getRoleLabel(u.role)}</div>
                         <div class="user-status ${u.status}">${u.status}</div>
                         <div class="user-actions">
                             <button class="btn-edit" onclick="App.showEditUserForm('${u.id}')" title="Edit user">
@@ -956,10 +971,9 @@ const App = {
                 <div class="form-group">
                     <label>Role</label>
                     <select id="edit-user-role">
-                        <option value="relawan" ${user.role === 'relawan' ? 'selected' : ''}>Relawan</option>
-                        <option value="staff" ${user.role === 'staff' ? 'selected' : ''}>Staff</option>
-                        <option value="koordinator" ${user.role === 'koordinator' ? 'selected' : ''}>Koordinator</option>
-                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                        <option value="editor" ${user.role === 'editor' || user.role === 'koordinator' || user.role === 'staff' || user.role === 'aslab' ? 'selected' : ''}>Can Edit</option>
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Full Access</option>
+                        <option value="viewer" ${user.role === 'viewer' || user.role === 'relawan' ? 'selected' : ''}>View Only</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1002,10 +1016,9 @@ const App = {
                 <div class="form-group">
                     <label>Role</label>
                     <select id="new-user-role">
-                        <option value="relawan">Relawan</option>
-                        <option value="staff">Staff</option>
-                        <option value="koordinator">Koordinator</option>
-                        <option value="admin">Admin</option>
+                        <option value="editor">Can Edit</option>
+                        <option value="admin">Full Access</option>
+                        <option value="viewer">View Only</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary btn-full">💾 Simpan User</button>
